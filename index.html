@@ -1,839 +1,173 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>延世韩国语第三册 - 词汇点读小站</title>
-    <style>
-        :root {
-            --primary-color: #4a90e2;
-            --bg-color: #f7f9fc;
-            --card-bg: #ffffff;
-            --text-main: #2c3e50;
-            --text-sub: #7f8c8d;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>延世韩国语 - 高音质词汇点读小站</title>
+  <style>
+    :root {
+      --bg-color: #f4f7f6;
+      --card-bg: #ffffff;
+      --primary-color: #2c3e50;
+      --accent-color: #3498db;
+      --text-main: #333333;
+      --text-sub: #7f8c8d;
+      --border-radius: 12px;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 20px;
-            color: var(--text-main);
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        header {
-            max-width: 1000px;
-            margin: 0 auto 20px;
-            text-align: center;
-        }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
 
-        h1 {
-            margin-bottom: 10px;
-            color: #1a2a3a;
-        }
+    h1 {
+      font-size: 1.6rem;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+    }
 
-        .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 25px;
-            background: var(--card-bg);
-            padding: 15px 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
+    p.tips {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin: 0;
+    }
 
-        select, input {
-            padding: 8px 14px;
-            border-radius: 8px;
-            border: 1px solid #dcdfe6;
-            font-size: 14px;
-            outline: none;
-        }
+    .word-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+      width: 100%;
+      max-width: 800px;
+    }
 
-        select:focus, input:focus {
-            border-color: var(--primary-color);
-        }
+    .word-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+    .word-card:active {
+      transform: scale(0.96);
+      background-color: #eaf4fb;
+    }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 16px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 2px solid transparent;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-        }
+    .kr-text {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 6px;
+    }
 
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(74, 144, 226, 0.15);
-            border-color: var(--primary-color);
-        }
-
-        .card:active {
-            transform: scale(0.98);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            color: var(--text-sub);
-            margin-bottom: 8px;
-        }
-
-        .pos-tag {
-            background: #edf2f7;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .korean {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--text-main);
-            margin-bottom: 6px;
-            word-break: break-word;
-        }
-
-        .chinese {
-            font-size: 14px;
-            color: var(--text-sub);
-        }
-
-        .stats {
-            font-size: 14px;
-            color: var(--text-sub);
-        }
-    </style>
+    .cn-text {
+      font-size: 0.95rem;
+      color: var(--text-sub);
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <h1>延世韩国语第三册 点读学习</h1>
-        <div class="controls">
-            <label for="unitSelect"><b>选择单元：</b></label>
-            <select id="unitSelect" onchange="filterWords()">
-                <option value="all">全部单元 (共607词)</option>
-                <option value="1">第一单元</option>
-                <option value="2">第二单元</option>
-                <option value="3">第三单元</option>
-                <option value="4">第四单元</option>
-                <option value="5">第五单元</option>
-                <option value="6">第六单元</option>
-                <option value="7">第七单元</option>
-                <option value="8">第八单元</option>
-                <option value="9">第九单元</option>
-                <option value="10">第十单元</option>
-            </select>
+  <header>
+    <h1>延世韩国语 - 词汇点读小站</h1>
+    <p class="tips">💡 点击下方任意卡片即可发音（建议使用 Edge 或 Chrome 浏览器）</p>
+  </header>
 
-            <input type="text" id="searchInput" placeholder="搜索韩语或中文..." oninput="filterWords()">
-            <span class="stats" id="wordCount">显示 0 个单词</span>
-        </div>
-    </header>
+  <!-- 词汇卡片展示区 -->
+  <main class="word-grid">
+    <div class="word-card" onclick="speakKorean('안녕하세요')">
+      <div class="kr-text">안녕하세요</div>
+      <div class="cn-text">你好</div>
+    </div>
 
-    <main class="grid" id="wordGrid"></main>
+    <div class="word-card" onclick="speakKorean('감사합니다')">
+      <div class="kr-text">감사합니다</div>
+      <div class="cn-text">谢谢</div>
+    </div>
 
-    <script>
-        // 延世韩国语第三册全量数据
-        const vocabularyData = [
-            // 第一单元
-            { unit: 1, ko: "시간을 내다", pos: "短语", zh: "腾出时间，抽空" },
-            { unit: 1, ko: "마음을 먹다", pos: "短语", zh: "下决心" },
-            { unit: 1, ko: "가능하다", pos: "形容词", zh: "可能" },
-            { unit: 1, ko: "모으다", pos: "他动词", zh: "收集" },
-            { unit: 1, ko: "세계", pos: "名词", zh: "世界" },
-            { unit: 1, ko: "거의", pos: "副词", zh: "几乎，差不多" },
-            { unit: 1, ko: "수집하다", pos: "他动词", zh: "收集" },
-            { unit: 1, ko: "감상하다", pos: "他动词", zh: "欣赏，鉴赏" },
-            { unit: 1, ko: "두다", pos: "他动词", zh: "下（棋）" },
-            { unit: 1, ko: "요가", pos: "名词", zh: "瑜伽" },
-            { unit: 1, ko: "다양하다", pos: "形容词", zh: "各种各样的，多样的" },
-            { unit: 1, ko: "장르", pos: "名词", zh: "类型，题材" },
-            { unit: 1, ko: "공포", pos: "名词", zh: "恐怖" },
-            { unit: 1, ko: "개봉하다", pos: "他动词", zh: "开映，放映" },
-            { unit: 1, ko: "학원", pos: "名词", zh: "学院，学习班" },
-            { unit: 1, ko: "등록하다", pos: "自/他动词", zh: "报名，注册" },
-            { unit: 1, ko: "완성하다", pos: "他动词", zh: "完成" },
-            { unit: 1, ko: "인물화", pos: "名词", zh: "人物画" },
-            { unit: 1, ko: "풍경화", pos: "名词", zh: "风景画" },
-            { unit: 1, ko: "전시회", pos: "名词", zh: "展示会，展览会" },
-            { unit: 1, ko: "연주회", pos: "名词", zh: "演奏会" },
-            { unit: 1, ko: "상영", pos: "名词", zh: "上映，放映" },
-            { unit: 1, ko: "발표회", pos: "名词", zh: "发布会，发表会" },
-            { unit: 1, ko: "동서양", pos: "名词", zh: "东西方" },
-            { unit: 1, ko: "정물화", pos: "名词", zh: "静物画" },
-            { unit: 1, ko: "입장료", pos: "名词", zh: "门票费" },
-            { unit: 1, ko: "동아리에 들다", pos: "短语", zh: "加入社团" },
-            { unit: 1, ko: "관심", pos: "名词", zh: "关心，感兴趣" },
-            { unit: 1, ko: "동영상", pos: "名词", zh: "视频" },
-            { unit: 1, ko: "괜히", pos: "副词", zh: "白白地" },
-            { unit: 1, ko: "고민하다", pos: "动词", zh: "苦恼,烦恼" },
-            { unit: 1, ko: "탈춤 동아리", pos: "名词", zh: "假面舞社团" },
-            { unit: 1, ko: "국악 동아리", pos: "名词", zh: "国乐社团" },
-            { unit: 1, ko: "봉사 동아리", pos: "名词", zh: "公益社团" },
-            { unit: 1, ko: "합창 동아리", pos: "名词", zh: "合唱社团" },
-            { unit: 1, ko: "지다", pos: "动词", zh: "输" },
-            { unit: 1, ko: "이기다", pos: "动词", zh: "赢" },
-            { unit: 1, ko: "조사", pos: "名词", zh: "调查" },
-            { unit: 1, ko: "결과", pos: "名词", zh: "结果" },
-            { unit: 1, ko: "~에 따르면", pos: "短语", zh: "按照......" },
-            { unit: 1, ko: "험하다", pos: "形容词", zh: "险峻的" },
-            { unit: 1, ko: "관광", pos: "名词", zh: "观光,旅游" },
-            { unit: 1, ko: "관람", pos: "名词", zh: "参观,观看" },
-            { unit: 1, ko: "오락", pos: "名词", zh: "娱乐" },
-            { unit: 1, ko: "이상", pos: "后缀", zh: "以上" },
-            { unit: 1, ko: "즐기다", pos: "他动词", zh: "爱好,喜爱" },
-            { unit: 1, ko: "과정", pos: "名词", zh: "过程" },
-            { unit: 1, ko: "기구", pos: "名词", zh: "器具" },
-            { unit: 1, ko: "단독 주택", pos: "名词", zh: "单独住宅" },
-            { unit: 1, ko: "화초", pos: "名词", zh: "花草" },
-            { unit: 1, ko: "활용하다", pos: "他动词", zh: "利用,灵活利用" },
-            { unit: 1, ko: "벗어나다", pos: "自/他动词", zh: "摆脱,脱离" },
-            { unit: 1, ko: "스스로", pos: "副词", zh: "自己" },
+    <div class="word-card" onclick="speakKorean('선생님')">
+      <div class="kr-text">선생님</div>
+      <div class="cn-text">老师</div>
+    </div>
 
-            // 第二单元
-            { unit: 2, ko: "이사를 오다", pos: "短语", zh: "搬来" },
-            { unit: 2, ko: "그렇지 않아도", pos: "短语", zh: "不然也..." },
-            { unit: 2, ko: "궁금하다", pos: "形容词", zh: "好奇" },
-            { unit: 2, ko: "인사를 가다", pos: "短语", zh: "问候" },
-            { unit: 2, ko: "이사 떡", pos: "名词", zh: "搬家年糕" },
-            { unit: 2, ko: "맛을 보다", pos: "短语", zh: "品尝" },
-            { unit: 2, ko: "인사를 받다", pos: "短语", zh: "接受问候" },
-            { unit: 2, ko: "인사를 드리다", pos: "短语", zh: "致以问候" },
-            { unit: 2, ko: "인사를 시키다", pos: "短语", zh: "让/使... 问候" },
-            { unit: 2, ko: "인사를 나누다", pos: "短语", zh: "互相问候" },
-            { unit: 2, ko: "위로하다", pos: "他动词", zh: "安慰,慰问" },
-            { unit: 2, ko: "청하다", pos: "他动词", zh: "请,请求,邀请" },
-            { unit: 2, ko: "무표정하다", pos: "形容词", zh: "没表情,呆板" },
-            { unit: 2, ko: "고려하다", pos: "动词", zh: "考虑,斟酌" },
-            { unit: 2, ko: "앞머리", pos: "名词", zh: "刘海" },
-            { unit: 2, ko: "찌르다", pos: "他动词", zh: "扎,刺" },
-            { unit: 2, ko: "염색", pos: "名词", zh: "染色" },
-            { unit: 2, ko: "짙다", pos: "形容词", zh: "深,浓" },
-            { unit: 2, ko: "갈색", pos: "名词", zh: "褐色" },
-            { unit: 2, ko: "머리를 다듬다", pos: "短语", zh: "修剪头发" },
-            { unit: 2, ko: "굽을 갈다", pos: "短语", zh: "换鞋跟" },
-            { unit: 2, ko: "파마를 하다", pos: "短语", zh: "烫发" },
-            { unit: 2, ko: "미용실", pos: "名词", zh: "美容院,美发厅" },
-            { unit: 2, ko: "펴다", pos: "他动词", zh: "展开,打开" },
-            { unit: 2, ko: "미용사", pos: "名词", zh: "美发师,美容师" },
-            { unit: 2, ko: "드라이", pos: "名词", zh: "吹风" },
-            { unit: 2, ko: "두께", pos: "名词", zh: "厚度" },
-            { unit: 2, ko: "덮다", pos: "动词", zh: "盖" },
-            { unit: 2, ko: "세탁물", pos: "名词", zh: "要洗的衣物" },
-            { unit: 2, ko: "구하다", pos: "他动词", zh: "找,求" },
-            { unit: 2, ko: "초보자", pos: "名词", zh: "新手" },
-            { unit: 2, ko: "경험", pos: "名词", zh: "经验" },
-            { unit: 2, ko: "근무 시간", pos: "名词", zh: "工作时间" },
-            { unit: 2, ko: "다들", pos: "名词", zh: "大家,所有人" },
-            { unit: 2, ko: "경력자", pos: "名词", zh: "有经验者" },
-            { unit: 2, ko: "이력서", pos: "名词", zh: "简历" },
-            { unit: 2, ko: "시간제", pos: "名词", zh: "按时间" },
-            { unit: 2, ko: "보수", pos: "名词", zh: "报酬" },
-            { unit: 2, ko: "자기 소개서", pos: "名词", zh: "自我介绍" },
-            { unit: 2, ko: "업무", pos: "名词", zh: "业务" },
-            { unit: 2, ko: "능통자", pos: "名词", zh: "精通某方面的人" },
-            { unit: 2, ko: "면접", pos: "名词", zh: "面试" },
-            { unit: 2, ko: "판매", pos: "名词", zh: "卖,销售" },
-            { unit: 2, ko: "지원하다", pos: "他动词", zh: "报名,应聘" },
-            { unit: 2, ko: "구인 광고", pos: "名词", zh: "招聘广告" },
-            { unit: 2, ko: "주유", pos: "名词", zh: "加油" },
-            { unit: 2, ko: "매점", pos: "名词", zh: "小卖店" },
-            { unit: 2, ko: "(전화가) 걸리다", pos: "短语", zh: "拨通(打)电话" },
-            { unit: 2, ko: "수리", pos: "名词", zh: "修理,维修" },
-            { unit: 2, ko: "(돈이) 들다", pos: "短语", zh: "需要(钱)" },
-            { unit: 2, ko: "구입하다", pos: "他动词", zh: "购买" },
-            { unit: 2, ko: "맡기다", pos: "自动词", zh: "委托,交给" },
-            { unit: 2, ko: "사용 설명서를 보다", pos: "短语", zh: "看使用说明书" },
-            { unit: 2, ko: "문의하다", pos: "他动词", zh: "询问,询查" },
-            { unit: 2, ko: "서비스 센터에 맡기다", pos: "短语", zh: "交给售后服务中心" },
-            { unit: 2, ko: "수리를 요청하다", pos: "短语", zh: "报修" },
-            { unit: 2, ko: "서비스 센터에서 찾다", pos: "短语", zh: "去售后服务中心领取" },
-            { unit: 2, ko: "수리를 받다", pos: "短语", zh: "进行维修" },
-            { unit: 2, ko: "배터리", pos: "名词", zh: "电池" },
-            { unit: 2, ko: "충전하다", pos: "他动词", zh: "充电" },
-            { unit: 2, ko: "온도", pos: "名词", zh: "温度" },
-            { unit: 2, ko: "젖다", pos: "形容词", zh: "湿" },
-            { unit: 2, ko: "자판", pos: "名词", zh: "键盘" },
-            { unit: 2, ko: "화면", pos: "名词", zh: "画面,屏幕" },
-            { unit: 2, ko: "뾰족하다", pos: "形容词", zh: "尖,尖细" },
-            { unit: 2, ko: "액정", pos: "名词", zh: "液晶画面" },
-            { unit: 2, ko: "작동", pos: "名词", zh: "转动,发动" },
-            { unit: 2, ko: "돌리다", pos: "动词", zh: "分送,分发" },
-            { unit: 2, ko: "팥", pos: "名词", zh: "红豆" },
-            { unit: 2, ko: "시루", pos: "名词", zh: "蒸笼" },
-            { unit: 2, ko: "조리 기구", pos: "名词", zh: "厨具" },
+    <div class="word-card" onclick="speakKorean('학생')">
+      <div class="kr-text">학생</div>
+      <div class="cn-text">学生</div>
+    </div>
 
-            // 第三单元
-            { unit: 3, ko: "안색", pos: "名词", zh: "脸色" },
-            { unit: 3, ko: "몸살이 나다", pos: "短语", zh: "因感冒而浑身酸疼" },
-            { unit: 3, ko: "무리하다", pos: "形容词", zh: "过度,过分" },
-            { unit: 3, ko: "뭐니 뭐니 해도", pos: "短语", zh: "无论如何,不管怎样" },
-            { unit: 3, ko: "잃다", pos: "他动词", zh: "失去,丢" },
-            { unit: 3, ko: "스트레스", pos: "名词", zh: "压力" },
-            { unit: 3, ko: "불면증", pos: "名词", zh: "失眠症" },
-            { unit: 3, ko: "흡연", pos: "名词", zh: "吸烟" },
-            { unit: 3, ko: "비만", pos: "名词", zh: "肥胖" },
-            { unit: 3, ko: "고혈압", pos: "名词", zh: "高血压" },
-            { unit: 3, ko: "운동 부족", pos: "名词", zh: "缺乏运动" },
-            { unit: 3, ko: "야근", pos: "名词", zh: "夜班" },
-            { unit: 3, ko: "유혹", pos: "名词", zh: "诱惑,引诱" },
-            { unit: 3, ko: "뿌리치다", pos: "他动词", zh: "甩开,拒绝" },
-            { unit: 3, ko: "충고", pos: "名词", zh: "忠告" },
-            { unit: 3, ko: "상쾌하다", pos: "形容词", zh: "爽快,舒畅" },
-            { unit: 3, ko: "식욕", pos: "名词", zh: "食欲" },
-            { unit: 3, ko: "유지하다", pos: "他动词", zh: "保持" },
-            { unit: 3, ko: "노력", pos: "名词", zh: "努力" },
-            { unit: 3, ko: "깨우다", pos: "使动词", zh: "叫醒" },
-            { unit: 3, ko: "체중이 줄다", pos: "短语", zh: "体重下降" },
-            { unit: 3, ko: "근육이 생기다", pos: "短语", zh: "练出肌肉" },
-            { unit: 3, ko: "피로가 풀리다", pos: "短语", zh: "消除疲劳" },
-            { unit: 3, ko: "스트레스가 풀리다", pos: "短语", zh: "消除压力" },
-            { unit: 3, ko: "열량을 소모하다", pos: "短语", zh: "消耗热量" },
-            { unit: 3, ko: "다이어트", pos: "名词", zh: "减肥,瘦身" },
-            { unit: 3, ko: "소비", pos: "名词", zh: "消费" },
-            { unit: 3, ko: "장바구니", pos: "名词", zh: "菜篮子" },
-            { unit: 3, ko: "대중교통", pos: "名词", zh: "公共交通" },
-            { unit: 3, ko: "번거롭다", pos: "形容词", zh: "繁琐,麻烦" },
-            { unit: 3, ko: "손이 가다", pos: "短语", zh: "费事" },
-            { unit: 3, ko: "대표적이다", pos: "冠形词", zh: "有代表性的" },
-            { unit: 3, ko: "건강식", pos: "名词", zh: "健康食品" },
-            { unit: 3, ko: "김장철", pos: "名词", zh: "做泡菜的季节" },
-            { unit: 3, ko: "김장하다", pos: "自动词", zh: "做过冬泡菜" },
-            { unit: 3, ko: "육류", pos: "名词", zh: "肉类" },
-            { unit: 3, ko: "생선류", pos: "名词", zh: "鱼类" },
-            { unit: 3, ko: "곡류", pos: "名词", zh: "谷类" },
-            { unit: 3, ko: "유기농 식품", pos: "名词", zh: "有机食品" },
-            { unit: 3, ko: "인스턴트 식품", pos: "名词", zh: "快餐" },
-            { unit: 3, ko: "발효 식품", pos: "名词", zh: "发酵食品" },
-            { unit: 3, ko: "탄산음료", pos: "名词", zh: "碳酸饮料" },
-            { unit: 3, ko: "식습관", pos: "名词", zh: "饮食习惯" },
-            { unit: 3, ko: "화학조미료", pos: "名词", zh: "化学调料" },
-            { unit: 3, ko: "꿀", pos: "名词", zh: "蜜" },
-            { unit: 3, ko: "씹다", pos: "他动词", zh: "咀嚼" },
-            { unit: 3, ko: "골고루", pos: "副词", zh: "平均,均匀" },
-            { unit: 3, ko: "장수", pos: "名词", zh: "长寿" },
-            { unit: 3, ko: "비결", pos: "名词", zh: "秘诀" },
-            { unit: 3, ko: "정하다", pos: "他动词", zh: "定,确定" },
-            { unit: 3, ko: "식사량", pos: "名词", zh: "饭量" },
-            { unit: 3, ko: "중요하다", pos: "形容词", zh: "重要的" },
-            { unit: 3, ko: "과식", pos: "名词", zh: "暴食" },
-            { unit: 3, ko: "소식", pos: "名词", zh: "饭量小" },
-            { unit: 3, ko: "편식", pos: "名词", zh: "偏食" },
-            { unit: 3, ko: "채식", pos: "名词", zh: "素食" },
-            { unit: 3, ko: "육식", pos: "名词", zh: "肉食" },
-            { unit: 3, ko: "규칙적이다", pos: "冠形词", zh: "有规律的" },
-            { unit: 3, ko: "불규칙하다", pos: "形容词", zh: "不规律的" },
-            { unit: 3, ko: "민간요법", pos: "名词", zh: "偏方" },
-            { unit: 3, ko: "양치하다", pos: "动词", zh: "刷牙" },
-            { unit: 3, ko: "미지근하다", pos: "形容词", zh: "温热" },
-            { unit: 3, ko: "효과", pos: "名词", zh: "效果" },
-            { unit: 3, ko: "눕다", pos: "自动词", zh: "躺" },
-            { unit: 3, ko: "올리다", pos: "他动词", zh: "抬,举" },
-            { unit: 3, ko: "긴장", pos: "名词", zh: "紧张" },
-            { unit: 3, ko: "입구", pos: "名词", zh: "入口" },
-            { unit: 3, ko: "회복하다", pos: "动词", zh: "恢复" },
-            { unit: 3, ko: "기운", pos: "名词", zh: "劲头儿,精神" },
-            { unit: 3, ko: "영양", pos: "名词", zh: "营养" },
+    <div class="word-card" onclick="speakKorean('한국어')">
+      <div class="kr-text">한국어</div>
+      <div class="cn-text">韩国语</div>
+    </div>
 
-            // 第四单元
-            { unit: 4, ko: "뮤지컬", pos: "名词", zh: "音乐剧" },
-            { unit: 4, ko: "감동적이다", pos: "名词", zh: "感动,感人" },
-            { unit: 4, ko: "무대", pos: "名词", zh: "舞台" },
-            { unit: 4, ko: "의상", pos: "名词", zh: "服装,衣裳" },
-            { unit: 4, ko: "말할 것도 없다", pos: "短语", zh: "不用说" },
-            { unit: 4, ko: "공연", pos: "名词", zh: "演出:公演" },
-            { unit: 4, ko: "자막", pos: "名词", zh: "字幕" },
-            { unit: 4, ko: "작품명", pos: "名词", zh: "作品名" },
-            { unit: 4, ko: "관람 연령", pos: "名词", zh: "观众年龄" },
-            { unit: 4, ko: "공연 장소", pos: "名词", zh: "演出地点" },
-            { unit: 4, ko: "공연 일시", pos: "名词", zh: "公演时间" },
-            { unit: 4, ko: "작품 해설", pos: "名词", zh: "作品解说" },
-            { unit: 4, ko: "비슷하다", pos: "形容词", zh: "相似" },
-            { unit: 4, ko: "특징", pos: "名词", zh: "特点" },
-            { unit: 4, ko: "화려하다", pos: "形容词", zh: "华丽" },
-            { unit: 4, ko: "관객", pos: "名词", zh: "观众" },
-            { unit: 4, ko: "알리다", pos: "动词", zh: "告知" },
-            { unit: 4, ko: "좌석", pos: "名词", zh: "座位" },
-            { unit: 4, ko: "인터넷 사이트", pos: "名词", zh: "网站" },
-            { unit: 4, ko: "가입하다", pos: "自动词", zh: "加入" },
-            { unit: 4, ko: "선택하다", pos: "动词", zh: "选择" },
-            { unit: 4, ko: "간단하다", pos: "形容词", zh: "简单的" },
-            { unit: 4, ko: "알려 주다", pos: "短语", zh: "告诉" },
-            { unit: 4, ko: "취소하다", pos: "他动词", zh: "取消" },
-            { unit: 4, ko: "환불 받다", pos: "短语", zh: "退款" },
-            { unit: 4, ko: "변경하다", pos: "他动词", zh: "变更" },
-            { unit: 4, ko: "인원수", pos: "名词", zh: "人数" },
-            { unit: 4, ko: "매진되다", pos: "自动词", zh: "卖完" },
-            { unit: 4, ko: "폰뱅킹", pos: "名词", zh: "电话银行/手机银行" },
-            { unit: 4, ko: "당일", pos: "名词", zh: "当日" },
-            { unit: 4, ko: "목소리", pos: "名词", zh: "嗓音" },
-            { unit: 4, ko: "연기", pos: "名词", zh: "演技" },
-            { unit: 4, ko: "훌륭하다", pos: "形容词", zh: "优秀的,出色的,精彩的" },
-            { unit: 4, ko: "대사", pos: "名词", zh: "台词" },
-            { unit: 4, ko: "마지막", pos: "副词", zh: "最后" },
-            { unit: 4, ko: "인상적이다", pos: "名词", zh: "印象深刻" },
-            { unit: 4, ko: "환상적이다", pos: "名词", zh: "梦幻的,神奇的" },
-            { unit: 4, ko: "심각하다", pos: "形容词", zh: "严肃,严峻" },
-            { unit: 4, ko: "신나다", pos: "形容词", zh: "兴奋,开心" },
-            { unit: 4, ko: "백문이 불여일견", pos: "俗语", zh: "百闻不如一见" },
-            { unit: 4, ko: "평범하다", pos: "形容词", zh: "平凡的" },
-            { unit: 4, ko: "영원히", pos: "副词", zh: "永远地" },
-            { unit: 4, ko: "사물놀이", pos: "名词", zh: "四物戏" },
-            { unit: 4, ko: "분위기", pos: "名词", zh: "氛围,气氛" },
-            { unit: 4, ko: "지루하다", pos: "形容词", zh: "烦人,无聊" },
-            { unit: 4, ko: "흥겹다", pos: "形容词", zh: "兴奋,高兴" },
-            { unit: 4, ko: "확", pos: "副词", zh: "一下子(紧张消除)" },
-            { unit: 4, ko: "인기", pos: "名词", zh: "有人气,受欢迎" },
-            { unit: 4, ko: "제안하다", pos: "他动词", zh: "提议,建议" },
-            { unit: 4, ko: "권하다", pos: "动词", zh: "规劝,劝说" },
-            { unit: 4, ko: "추천하다", pos: "他动词", zh: "推荐" },
-            { unit: 4, ko: "후회하다", pos: "动词", zh: "后悔" },
-            { unit: 4, ko: "정성", pos: "名词", zh: "真诚,诚心" },
-            { unit: 4, ko: "흔들다", pos: "他动词", zh: "晃动,摇晃" },
-            { unit: 4, ko: "전통 악기", pos: "名词", zh: "传统乐器" },
-            { unit: 4, ko: "연주", pos: "名词", zh: "演奏" },
+    <div class="word-card" onclick="speakKorean('공부하다')">
+      <div class="kr-text">공부하다</div>
+      <div class="cn-text">学习</div>
+    </div>
+  </main>
 
-            // 第五单元
-            { unit: 5, ko: "패션쇼", pos: "名词", zh: "服装秀" },
-            { unit: 5, ko: "평(가)", pos: "名词", zh: "评(价)" },
-            { unit: 5, ko: "실력", pos: "名词", zh: "实力" },
-            { unit: 5, ko: "인정을 받다", pos: "短语", zh: "得到认可" },
-            { unit: 5, ko: "겨우", pos: "副词", zh: "好不容易" },
-            { unit: 5, ko: "성공하다", pos: "自动词", zh: "成功" },
-            { unit: 5, ko: "능력이 뛰어나다", pos: "短语", zh: "能力突出,出色" },
-            { unit: 5, ko: "모습", pos: "名词", zh: "样子,模样" },
-            { unit: 5, ko: "억양", pos: "名词", zh: "语调" },
-            { unit: 5, ko: "사투리", pos: "名词", zh: "方言,土话" },
-            { unit: 5, ko: "원래", pos: "名词", zh: "原来,本来" },
-            { unit: 5, ko: "끊임없이", pos: "副词", zh: "不断地" },
-            { unit: 5, ko: "충분하다", pos: "形容词", zh: "充分的,足够的" },
-            { unit: 5, ko: "무척", pos: "副词", zh: "非常,极为,特别" },
-            { unit: 5, ko: "죽", pos: "名词", zh: "粥" },
-            { unit: 5, ko: "챙기다", pos: "他动词", zh: "照顾;准备;整理" },
-            { unit: 5, ko: "마치", pos: "副词", zh: "仿佛,好像" },
-            { unit: 5, ko: "성격이 급하다", pos: "短语", zh: "性格急躁" },
-            { unit: 5, ko: "정이 많다", pos: "短语", zh: "热情" },
-            { unit: 5, ko: "냉정하다", pos: "形容词", zh: "冷静:冷淡" },
-            { unit: 5, ko: "게으르다", pos: "形容词", zh: "懒惰" },
-            { unit: 5, ko: "고집이 세다", pos: "短语", zh: "固执" },
-            { unit: 5, ko: "말이 많다", pos: "短语", zh: "话多,嘴碎" },
-            { unit: 5, ko: "무뚝뚝하다", pos: "形容词", zh: "生硬,冷漠" },
-            { unit: 5, ko: "꼼꼼하다", pos: "形容词", zh: "认真,仔细,细致" },
-            { unit: 5, ko: "김치를 담그다", pos: "短语", zh: "腌泡菜" },
-            { unit: 5, ko: "사생활", pos: "名词", zh: "私生活" },
-            { unit: 5, ko: "낯설다", pos: "形容词", zh: "陌生,不熟悉" },
-            { unit: 5, ko: "혹시", pos: "副词", zh: "或许,大概" },
-            { unit: 5, ko: "말이다", pos: "短语", zh: "就是说呀" },
-            { unit: 5, ko: "돈을 벌다", pos: "短语", zh: "赚钱" },
-            { unit: 5, ko: "기부하다", pos: "他动词", zh: "捐献" },
-            { unit: 5, ko: "놀랍다", pos: "形容词", zh: "惊人,吃惊" },
-            { unit: 5, ko: "자신", pos: "名词", zh: "自己,自身" },
-            { unit: 5, ko: "대단하다", pos: "形容词", zh: "了不起,出色" },
-            { unit: 5, ko: "저축하다", pos: "他动词", zh: "储蓄,存款" },
-            { unit: 5, ko: "절약하다", pos: "他动词", zh: "节约" },
-            { unit: 5, ko: "낭비하다", pos: "他动词", zh: "浪费" },
-            { unit: 5, ko: "투자하다", pos: "自动词", zh: "投资" },
-            { unit: 5, ko: "미담", pos: "名词", zh: "美谈,佳话" },
-            { unit: 5, ko: "재산", pos: "名词", zh: "资产" },
-            { unit: 5, ko: "고아원", pos: "名词", zh: "孤儿院" },
-            { unit: 5, ko: "사회", pos: "名词", zh: "社会" },
-            { unit: 5, ko: "마음이 넓다", pos: "短语", zh: "心胸宽广" },
-            { unit: 5, ko: "배려하다", pos: "他动词", zh: "关怀,照顾" },
-            { unit: 5, ko: "존경하다", pos: "他动词", zh: "尊敬,尊重" },
-            { unit: 5, ko: "흐뭇하다", pos: "形容词", zh: "满足,高兴" },
-            { unit: 5, ko: "교육자", pos: "名词", zh: "教育工作者" },
-            { unit: 5, ko: "연예인", pos: "名词", zh: "艺人" },
-            { unit: 5, ko: "정치인", pos: "名词", zh: "政治家" },
-            { unit: 5, ko: "사업가", pos: "名词", zh: "企业家" },
-            { unit: 5, ko: "언론인", pos: "名词", zh: "新闻工作者" },
-            { unit: 5, ko: "장학생", pos: "名词", zh: "奖学金获得者" },
-            { unit: 5, ko: "세계적이다", pos: "体词谓词型", zh: "世界性的" },
-            { unit: 5, ko: "지식", pos: "名词", zh: "知识" },
-            { unit: 5, ko: "인물", pos: "名词", zh: "人物" },
-            { unit: 5, ko: "업적", pos: "名词", zh: "业绩" },
-            { unit: 5, ko: "발명", pos: "名词", zh: "发明" },
-            { unit: 5, ko: "지도자", pos: "名词", zh: "领导" },
+  <script>
+    // 全局语音变量与声音初始化
+    let selectedKoreanVoice = null;
 
-            // 第六单元
-            { unit: 6, ko: "잔치", pos: "名词", zh: "酒席,宴席" },
-            { unit: 6, ko: "고생하다", pos: "自动词", zh: "辛苦,吃苦" },
-            { unit: 6, ko: "빈대떡", pos: "名词", zh: "绿豆煎饼" },
-            { unit: 6, ko: "안 그래도", pos: "连接语", zh: "反正,不然...也" },
-            { unit: 6, ko: "회갑 잔치", pos: "名词", zh: "花甲宴,六十大寿" },
-            { unit: 6, ko: "차례", pos: "名词", zh: "祭祀,祭礼" },
-            { unit: 6, ko: "과장님", pos: "名词", zh: "科长" },
-            { unit: 6, ko: "취향", pos: "名词", zh: "爱好,取向" },
-            { unit: 6, ko: "덕분에", pos: "搭配", zh: "幸亏,多亏" },
-            { unit: 6, ko: "실수하다", pos: "自/他动词", zh: "失误,弄错" },
-            { unit: 6, ko: "야", pos: "语气词", zh: "嗨" },
-            { unit: 6, ko: "준비 중이다", pos: "短语", zh: "准备中,正在准备" },
-            { unit: 6, ko: "아까", pos: "副词", zh: "刚刚,刚才" },
-            { unit: 6, ko: "안부", pos: "名词", zh: "问候" },
-            { unit: 6, ko: "안부를 전하다", pos: "短语", zh: "转达问候" },
-            { unit: 6, ko: "안부를 묻다", pos: "短语", zh: "问候,问好" },
-            { unit: 6, ko: "안부가 궁금하다", pos: "短语", zh: "挂念" },
-            { unit: 6, ko: "안부 전화를 하다", pos: "短语", zh: "打问候电话" },
-            { unit: 6, ko: "안부 편지를 쓰다", pos: "短语", zh: "写问候信" },
-            { unit: 6, ko: "안부 문자를 보내다", pos: "短语", zh: "发送问候短信" },
-            { unit: 6, ko: "안부 인사를 드리다", pos: "短语", zh: "请安,致以问候" },
-            { unit: 6, ko: "아깝다", pos: "形容词", zh: "可惜,惋惜" },
-            { unit: 6, ko: "직후", pos: "名词", zh: "之后,以后" },
-            { unit: 6, ko: "식", pos: "名词", zh: "方式" },
-            { unit: 6, ko: "오랜만이다", pos: "体词谓词型", zh: "好久不见,久违" },
-            { unit: 6, ko: "신입생", pos: "名词", zh: "新生" },
-            { unit: 6, ko: "오리엔테이션", pos: "名词", zh: "入学教育,职前教育" },
-            { unit: 6, ko: "곡", pos: "名词", zh: "曲:首" },
-            { unit: 6, ko: "신입생 환영회", pos: "名词", zh: "迎新会" },
-            { unit: 6, ko: "새내기", pos: "名词", zh: "新人,新成员" },
-            { unit: 6, ko: "여부", pos: "名词", zh: "与否" },
-            { unit: 6, ko: "일단", pos: "名词", zh: "一旦,先" },
-            { unit: 6, ko: "그냥", pos: "副词", zh: "就那样" },
-            { unit: 6, ko: "장기 자랑", pos: "名词", zh: "展示特长" },
-            { unit: 6, ko: "슬슬", pos: "副词", zh: "慢慢地,悄悄地" },
-            { unit: 6, ko: "회식", pos: "名词", zh: "聚餐,会餐" },
-            { unit: 6, ko: "참석하다", pos: "自动词", zh: "参加,出席" },
-            { unit: 6, ko: "잔뜩", pos: "副词", zh: "满,实;狠狠地" },
-            { unit: 6, ko: "기대하다", pos: "他动词", zh: "期待" },
-            { unit: 6, ko: "2차 [이차]", pos: "名词", zh: "第二轮" },
-            { unit: 6, ko: "야유회", pos: "名词", zh: "郊游" },
-            { unit: 6, ko: "오해", pos: "名词", zh: "误会" },
-            { unit: 6, ko: "폭탄주", pos: "名词", zh: "炮弹酒" },
-            { unit: 6, ko: "산낙지", pos: "名词", zh: "生章鱼" },
-            { unit: 6, ko: "마술", pos: "名词", zh: "魔术" },
-            { unit: 6, ko: "건의하다", pos: "自动词", zh: "建议" },
-            { unit: 6, ko: "회신", pos: "名词", zh: "回信" },
-            { unit: 6, ko: "목적", pos: "名词", zh: "目的" },
-            { unit: 6, ko: "방식", pos: "名词", zh: "方式" },
-            { unit: 6, ko: "손윗사람", pos: "名词", zh: "长辈,上级" },
-            { unit: 6, ko: "손아랫사람", pos: "名词", zh: "晚辈,下级" },
-            { unit: 6, ko: "각자", pos: "副词", zh: "各自" },
-            { unit: 6, ko: "부담하다", pos: "他动词", zh: "负担,担负" },
+    function initKoreanVoice() {
+      if (!('speechSynthesis' in window)) return;
+      
+      const voices = window.speechSynthesis.getVoices();
+      
+      // 优先匹配高品质神经网络音色 (Neural / Natural / Online)
+      selectedKoreanVoice = voices.find(voice => 
+        (voice.lang === 'ko-KR' || voice.lang === 'ko_KR' || voice.lang.startsWith('ko')) && 
+        (voice.name.includes('Neural') || voice.name.includes('Natural') || voice.name.includes('Online'))
+      ) || voices.find(voice => voice.lang.startsWith('ko'));
+    }
 
-            // 第七单元
-            { unit: 7, ko: "어떡하다", pos: "动词", zh: "怎么办" },
-            { unit: 7, ko: "그만", pos: "副词", zh: "就这样" },
-            { unit: 7, ko: "일기장", pos: "名词", zh: "日记" },
-            { unit: 7, ko: "비밀", pos: "名词", zh: "秘密" },
-            { unit: 7, ko: "내용", pos: "名词", zh: "内容" },
-            { unit: 7, ko: "잘못하다", pos: "他动词", zh: "做错,弄错" },
-            { unit: 7, ko: "착각하다", pos: "自/他动词", zh: "错以为,误以为" },
-            { unit: 7, ko: "오해하다", pos: "他动词", zh: "误会,误解" },
-            { unit: 7, ko: "커피를 뽑다", pos: "短语", zh: "(从自动贩卖机上)接咖啡" },
-            { unit: 7, ko: "생강차", pos: "名词", zh: "生姜茶" },
-            { unit: 7, ko: "할 수 없이", pos: "短语", zh: "没办法" },
-            { unit: 7, ko: "제대로", pos: "副词", zh: "合乎要求地" },
-            { unit: 7, ko: "렌즈", pos: "名词", zh: "镜头,透镜" },
-            { unit: 7, ko: "멀리서", pos: "副词", zh: "远远地,从远处" },
-            { unit: 7, ko: "친하다", pos: "形容词", zh: "亲近" },
-            { unit: 7, ko: "끼리", pos: "接尾词", zh: "同类的一群" },
-            { unit: 7, ko: "비위생적이다", pos: "体词谓词型", zh: "不卫生的" },
-            { unit: 7, ko: "불평하다", pos: "他动词", zh: "埋怨,抱怨" },
-            { unit: 7, ko: "사이", pos: "名词", zh: "关系" },
-            { unit: 7, ko: "식사 예절", pos: "名词", zh: "用餐礼节" },
-            { unit: 7, ko: "방문 예절", pos: "名词", zh: "拜访礼节" },
-            { unit: 7, ko: "언어 예절", pos: "名词", zh: "说话礼节" },
-            { unit: 7, ko: "전화 예절", pos: "名词", zh: "电话礼节" },
-            { unit: 7, ko: "동성", pos: "名词", zh: "同性" },
-            { unit: 7, ko: "친근감", pos: "名词", zh: "亲近感" },
-            { unit: 7, ko: "표현", pos: "名词", zh: "表达" },
-            { unit: 7, ko: "다닥다닥", pos: "副词", zh: "密密麻麻地" },
-            { unit: 7, ko: "개성", pos: "名词", zh: "个性" },
-            { unit: 7, ko: "꾸미다", pos: "他动词", zh: "装饰,打扮" },
-            { unit: 7, ko: "문화 충격", pos: "名词", zh: "文化冲击" },
-            { unit: 7, ko: "들르다", pos: "自/他动词", zh: "顺便去,经过" },
-            { unit: 7, ko: "부담", pos: "名词", zh: "负担" },
-            { unit: 7, ko: "직접적으로", pos: "副词", zh: "直接" },
-            { unit: 7, ko: "그럴 리가요", pos: "句子", zh: "怎么会呢" },
-            { unit: 7, ko: "오히려", pos: "副词", zh: "反倒是,反而" },
-            { unit: 7, ko: "볼일", pos: "名词", zh: "要办的事" },
-            { unit: 7, ko: "사과하다", pos: "自/他动词", zh: "道歉" },
-            { unit: 7, ko: "변명하다", pos: "他动词", zh: "辨明,辩解" },
-            { unit: 7, ko: "용서를 빌다", pos: "短语", zh: "乞求宽恕,求饶" },
-            { unit: 7, ko: "양해를 구하다", pos: "短语", zh: "求得谅解" },
-            { unit: 7, ko: "행동", pos: "名词", zh: "行动" },
-            { unit: 7, ko: "옳다", pos: "形容词", zh: "对,正确" },
-            { unit: 7, ko: "횟수", pos: "名词", zh: "次数,回数" },
-            { unit: 7, ko: "오해를 사다", pos: "短语", zh: "引起误会" },
-            { unit: 7, ko: "부딪치다", pos: "自/他动词", zh: "碰撞" },
-            { unit: 7, ko: "계속", pos: "副词", zh: "继续" },
-            { unit: 7, ko: "표현하다", pos: "他动词", zh: "表示,表达" },
-            { unit: 7, ko: "화해하다", pos: "自动词", zh: "和解" },
-            { unit: 7, ko: "알아듣다", pos: "他动词", zh: "听懂,听明白" },
-            { unit: 7, ko: "설득하다", pos: "他动词", zh: "说服,劝说" },
-            { unit: 7, ko: "진심", pos: "名词", zh: "真心" },
-            { unit: 7, ko: "무조건", pos: "副词", zh: "无条件地" },
-            { unit: 7, ko: "어색하다", pos: "形容词", zh: "尴尬" },
-            { unit: 7, ko: "효과적이다", pos: "体词谓词型", zh: "有效的" },
-            { unit: 7, ko: "불만", pos: "名词", zh: "不满" },
-            { unit: 7, ko: "문화권", pos: "名词", zh: "文化圈" },
-            { unit: 7, ko: "차이", pos: "名词", zh: "差异,不同" },
-            { unit: 7, ko: "팔짱을 끼다", pos: "短语", zh: "挽着胳膊" },
+    // 处理浏览器异步加载语音列表
+    if ('speechSynthesis' in window) {
+      initKoreanVoice();
+      window.speechSynthesis.onvoiceschanged = initKoreanVoice;
+    }
 
-            // 第八单元
-            { unit: 8, ko: "일정", pos: "名词", zh: "日程" },
-            { unit: 8, ko: "전체", pos: "名词", zh: "全体" },
-            { unit: 8, ko: "의논하다", pos: "他动词", zh: "商量,讨论" },
-            { unit: 8, ko: "회원", pos: "名词", zh: "会员" },
-            { unit: 8, ko: "준비물", pos: "名词", zh: "要准备的东西" },
-            { unit: 8, ko: "진행", pos: "名词", zh: "进行" },
-            { unit: 8, ko: "도시락", pos: "名词", zh: "盒饭" },
-            { unit: 8, ko: "간식", pos: "名词", zh: "零食" },
-            { unit: 8, ko: "잔디밭", pos: "名词", zh: "草地" },
-            { unit: 8, ko: "도시락을 싸다", pos: "短语", zh: "带盒饭" },
-            { unit: 8, ko: "구체적이다", pos: "体词谓词型", zh: "具体的" },
-            { unit: 8, ko: "나누다", pos: "他动词", zh: "分" },
-            { unit: 8, ko: "장점", pos: "名词", zh: "长处" },
-            { unit: 8, ko: "맡다", pos: "他动词", zh: "担任,负责" },
-            { unit: 8, ko: "비상약", pos: "名词", zh: "紧急药品,备用药" },
-            { unit: 8, ko: "어찌나", pos: "副词", zh: "非常,很,多么" },
-            { unit: 8, ko: "발음", pos: "名词", zh: "发音" },
-            { unit: 8, ko: "마침", pos: "副词", zh: "刚好,正好" },
-            { unit: 8, ko: "언어 교환", pos: "名词", zh: "语言交换" },
-            { unit: 8, ko: "시간이 나다", pos: "短语", zh: "有时间" },
-            { unit: 8, ko: "모국어", pos: "名词", zh: "母语" },
-            { unit: 8, ko: "기타", pos: "名词", zh: "其他" },
-            { unit: 8, ko: "조사", pos: "名词", zh: "助词" },
-            { unit: 8, ko: "참고", pos: "名词", zh: "参考,参照" },
-            { unit: 8, ko: "게시판", pos: "名词", zh: "布告板,告示牌" },
-            { unit: 8, ko: "현지인", pos: "名词", zh: "当地人" },
-            { unit: 8, ko: "우정", pos: "名词", zh: "友情" },
-            { unit: 8, ko: "상관없다", pos: "形容词", zh: "无关" },
-            { unit: 8, ko: "표정", pos: "名词", zh: "表情" },
-            { unit: 8, ko: "어둡다", pos: "形容词", zh: "暗淡,阴沉的" },
-            { unit: 8, ko: "아무", pos: "代名词", zh: "什么,任何" },
-            { unit: 8, ko: "아무리", pos: "副词", zh: "不管怎样" },
-            { unit: 8, ko: "말 못할", pos: "搭配", zh: "无法言语" },
-            { unit: 8, ko: "걱정을 하다", pos: "短语", zh: "担心,担忧" },
-            { unit: 8, ko: "문제가 생기다", pos: "短语", zh: "出问题" },
-            { unit: 8, ko: "충고를 하다", pos: "短语", zh: "忠告" },
-            { unit: 8, ko: "의견을 말하다", pos: "短语", zh: "表达建议" },
-            { unit: 8, ko: "풀다", pos: "他动词", zh: "解答;消除" },
-            { unit: 8, ko: "해결하다", pos: "动词", zh: "解决" },
-            { unit: 8, ko: "(기분이) 상하다", pos: "短语", zh: "伤心" },
-            { unit: 8, ko: "적성", pos: "名词", zh: "适合与否" },
-            { unit: 8, ko: "결국", pos: "名词", zh: "结果,最后" },
-            { unit: 8, ko: "입학하다", pos: "自动词", zh: "入学" },
-            { unit: 8, ko: "원서", pos: "名词", zh: "申请书" },
-            { unit: 8, ko: "접수시키다", pos: "使动词", zh: "交付/使受理/提交" },
-            { unit: 8, ko: "성적표", pos: "名词", zh: "成绩单" },
-            { unit: 8, ko: "면접시험", pos: "名词", zh: "面试" },
-            { unit: 8, ko: "그밖에", pos: "连词", zh: "此外,另外" },
-            { unit: 8, ko: "상담실", pos: "名词", zh: "咨询室" },
-            { unit: 8, ko: "상담 교사", pos: "名词", zh: "咨询老师" },
-            { unit: 8, ko: "조언", pos: "名词", zh: "指教,指点" },
-            { unit: 8, ko: "상담하다", pos: "自/他动词", zh: "咨询,商谈" },
-            { unit: 8, ko: "심사", pos: "名词", zh: "审查" },
-            { unit: 8, ko: "합격자", pos: "名词", zh: "合格者" },
-            { unit: 8, ko: "등록금", pos: "名词", zh: "学费" },
-            { unit: 8, ko: "납부", pos: "名词", zh: "缴纳,交纳" },
-            { unit: 8, ko: "한국학", pos: "名词", zh: "韩国学" },
-            { unit: 8, ko: "용지", pos: "名词", zh: "用纸" },
-            { unit: 8, ko: "당장", pos: "名词", zh: "当场,马上" },
-            { unit: 8, ko: "취업", pos: "名词", zh: "就业" },
-            { unit: 8, ko: "담임 선생님", pos: "名词", zh: "班主任" },
-            { unit: 8, ko: "교육", pos: "名词", zh: "教育" },
-            { unit: 8, ko: "예의", pos: "名词", zh: "礼仪" },
-            { unit: 8, ko: "공경", pos: "名词", zh: "恭敬,尊敬" },
-            { unit: 8, ko: "스승", pos: "名词", zh: "老师" },
+    // 点读发音核心逻辑
+    function speakKorean(text) {
+      if (!('speechSynthesis' in window)) {
+        alert("您的浏览器暂不支持朗读功能，建议更换 Chrome 或 Edge 浏览器。");
+        return;
+      }
 
-            // 第九单元
-            { unit: 9, ko: "뭐", pos: "缩略语", zh: "什么" },
-            { unit: 9, ko: "갑자기", pos: "副词", zh: "突然" },
-            { unit: 9, ko: "밤을 새우다", pos: "短语", zh: "熬夜,通宵" },
-            { unit: 9, ko: "어쩐지", pos: "副词", zh: "怪不得,难怪" },
-            { unit: 9, ko: "부탁을 받다", pos: "短语", zh: "接受拜托" },
-            { unit: 9, ko: "부탁을 들어주다", pos: "短语", zh: "答应拜托" },
-            { unit: 9, ko: "거절을 하다", pos: "短语", zh: "拒绝" },
-            { unit: 9, ko: "거절을 당하다", pos: "短语", zh: "被拒绝" },
-            { unit: 9, ko: "필기하다", pos: "他动词", zh: "做笔记" },
-            { unit: 9, ko: "한꺼번에", pos: "副词", zh: "一次,一下子" },
-            { unit: 9, ko: "지나가다", pos: "动词", zh: "路过,经过" },
-            { unit: 9, ko: "내밀다", pos: "他动词", zh: "递上,伸出" },
-            { unit: 9, ko: "기린", pos: "名词", zh: "长颈鹿" },
-            { unit: 9, ko: "발짝", pos: "依存名词", zh: "步" },
-            { unit: 9, ko: "물러나다", pos: "自动词", zh: "后退" },
-            { unit: 9, ko: "용돈", pos: "名词", zh: "零花钱" },
-            { unit: 9, ko: "추천서", pos: "名词", zh: "推荐信" },
-            { unit: 9, ko: "떨어지다", pos: "自动词", zh: "有距离,分离" },
-            { unit: 9, ko: "분명하다", pos: "形容词", zh: "分明,明确的" },
-            { unit: 9, ko: "도움을 청하다", pos: "短语", zh: "请求帮助" },
-            { unit: 9, ko: "기술", pos: "名词", zh: "技术" },
-            { unit: 9, ko: "조건", pos: "名词", zh: "条件" },
-            { unit: 9, ko: "발표", pos: "名词", zh: "发表,报告" },
-            { unit: 9, ko: "순서", pos: "名词", zh: "顺序" },
-            { unit: 9, ko: "지방", pos: "名词", zh: "地方" },
-            { unit: 9, ko: "안 되다", pos: "短语", zh: "不行,不可以" },
-            { unit: 9, ko: "불가능하다", pos: "形容词", zh: "不可能的" },
-            { unit: 9, ko: "승낙", pos: "名词", zh: "承诺,应允" },
-            { unit: 9, ko: "이기적이다", pos: "体词谓词型", zh: "自私的" },
-            { unit: 9, ko: "한계", pos: "名词", zh: "边际,限度" },
-            { unit: 9, ko: "파악하다", pos: "他动词", zh: "掌握" },
-            { unit: 9, ko: "쩔쩔매다", pos: "形容词", zh: "手足无措的" },
-            { unit: 9, ko: "거래처", pos: "名词", zh: "贸易伙伴,客户" },
-            { unit: 9, ko: "귀하다", pos: "形容词", zh: "尊贵,重要" },
-            { unit: 9, ko: "마중을 나가다", pos: "短语", zh: "迎接,出迎" },
-            { unit: 9, ko: "통역", pos: "名词", zh: "翻译,口译" },
-            { unit: 9, ko: "곤란하다", pos: "形容词", zh: "困难,为难" },
-            { unit: 9, ko: "사모님", pos: "名词(敬语)", zh: "上司/长辈的妻子" },
-            { unit: 9, ko: "기운이 없다", pos: "短语", zh: "无精打采" },
-            { unit: 9, ko: "성의가 없다", pos: "短语", zh: "无诚意" },
-            { unit: 9, ko: "속담", pos: "名词", zh: "谚语" },
-            { unit: 9, ko: "정직하다", pos: "形容词", zh: "正直的" },
+      // 停止当前正在播放的声音
+      window.speechSynthesis.cancel();
 
-            // 第十单元
-            { unit: 10, ko: "추억하다", pos: "他动词", zh: "回忆" },
-            { unit: 10, ko: "유난히", pos: "副词", zh: "特别" },
-            { unit: 10, ko: "관련", pos: "名词", zh: "相关,联系" },
-            { unit: 10, ko: "말이 나온 김에", pos: "短语", zh: "说到这儿" },
-            { unit: 10, ko: "회상", pos: "名词", zh: "回想" },
-            { unit: 10, ko: "준비", pos: "名词", zh: "准备" },
-            { unit: 10, ko: "상상", pos: "名词", zh: "想象" },
-            { unit: 10, ko: "반성", pos: "名词", zh: "反省" },
-            { unit: 10, ko: "후회", pos: "名词", zh: "后悔" },
-            { unit: 10, ko: "기억하다", pos: "他动词", zh: "记住,记忆" },
-            { unit: 10, ko: "깜빡하다", pos: "动词", zh: "一下子忘记" },
-            { unit: 10, ko: "외우다", pos: "他动词", zh: "背诵" },
-            { unit: 10, ko: "잔소리", pos: "名词", zh: "废话,唠叨" },
-            { unit: 10, ko: "그립다", pos: "形容词", zh: "想念" },
-            { unit: 10, ko: "단짝 친구", pos: "名词", zh: "好朋友" },
-            { unit: 10, ko: "통통하다", pos: "形容词", zh: "胖乎乎的" },
-            { unit: 10, ko: "땡땡이치다", pos: "他动词", zh: "逃课,逃学" },
-            { unit: 10, ko: "떠오르다", pos: "自动词", zh: "升起,浮现" },
-            { unit: 10, ko: "들키다", pos: "被动词", zh: "被发觉" },
-            { unit: 10, ko: "변하다", pos: "自动词", zh: "变化" },
-            { unit: 10, ko: "양쪽", pos: "名词", zh: "两侧" },
-            { unit: 10, ko: "단층", pos: "名词", zh: "单层" },
-            { unit: 10, ko: "발전되다", pos: "自动词", zh: "发展" },
-            { unit: 10, ko: "시간이 흐르다", pos: "短语", zh: "时间流逝" },
-            { unit: 10, ko: "좋아지다", pos: "自动词", zh: "变好,好起来" },
-            { unit: 10, ko: "향상되다", pos: "自动词", zh: "提高,提升" },
-            { unit: 10, ko: "늘다", pos: "自动词", zh: "增加,增长" },
-            { unit: 10, ko: "바뀌다", pos: "被动词", zh: "被改变" },
-            { unit: 10, ko: "세월", pos: "名词", zh: "岁月" },
-            { unit: 10, ko: "자부심", pos: "名词", zh: "自豪感" },
-            { unit: 10, ko: "초고속", pos: "名词", zh: "超高速" },
-            { unit: 10, ko: "아쉽다", pos: "形容词", zh: "可惜" },
-            { unit: 10, ko: "예전", pos: "名词", zh: "以前,过去" },
-            { unit: 10, ko: "어느새", pos: "副词", zh: "不知不觉地" },
-            { unit: 10, ko: "귀국하다", pos: "自动词", zh: "归国,回国" },
-            { unit: 10, ko: "사정", pos: "名词", zh: "事情,概况" },
-            { unit: 10, ko: "바라다", pos: "他动词", zh: "希望,期盼" },
-            { unit: 10, ko: "가정하다", pos: "动词", zh: "假定,假设" },
-            { unit: 10, ko: "상상하다", pos: "动词", zh: "想象" },
-            { unit: 10, ko: "추측하다", pos: "他动词", zh: "推测" },
-            { unit: 10, ko: "예상하다", pos: "自动词", zh: "预想" },
-            { unit: 10, ko: "경우", pos: "名词", zh: "情况,境况" },
-            { unit: 10, ko: "상황", pos: "名词", zh: "状况" },
-            { unit: 10, ko: "상태", pos: "名词", zh: "状态" },
-            { unit: 10, ko: "실망하다", pos: "自动词", zh: "失望" },
-            { unit: 10, ko: "만족하다", pos: "自动词", zh: "满意" },
-            { unit: 10, ko: "대통령", pos: "名词", zh: "总统" },
-            { unit: 10, ko: "태어나다", pos: "自动词", zh: "出生" },
-            { unit: 10, ko: "천재", pos: "名词", zh: "天才" },
-            { unit: 10, ko: "이루다", pos: "他动词", zh: "实现" },
-            { unit: 10, ko: "결과적으로", pos: "搭配", zh: "结果" },
-            { unit: 10, ko: "드디어", pos: "副词", zh: "终于" },
-            { unit: 10, ko: "새롭다", pos: "形容词", zh: "新" },
-            { unit: 10, ko: "가사", pos: "名词", zh: "家务" },
-            { unit: 10, ko: "판매되다", pos: "自动词", zh: "出售,上市" },
-            { unit: 10, ko: "완벽하다", pos: "形容词", zh: "完美的" },
-            { unit: 10, ko: "기능", pos: "名词", zh: "功能" },
-            { unit: 10, ko: "신기술", pos: "名词", zh: "新技术" },
-            { unit: 10, ko: "신형", pos: "名词", zh: "新型" },
-            { unit: 10, ko: "신기록", pos: "名词", zh: "新纪录" },
-            { unit: 10, ko: "신제품", pos: "名词", zh: "新产品" },
-            { unit: 10, ko: "신상품", pos: "名词", zh: "新商品" },
-            { unit: 10, ko: "발표되다", pos: "自动词", zh: "被发表,问世" },
-            { unit: 10, ko: "나타나다", pos: "自动词", zh: "出现" },
-            { unit: 10, ko: "밝혀지다", pos: "动词", zh: "查明,弄清楚" },
-            { unit: 10, ko: "알려지다", pos: "动词", zh: "传开,流传" },
-            { unit: 10, ko: "발견되다", pos: "自动词", zh: "被发现" },
-            { unit: 10, ko: "단순히", pos: "副词", zh: "单纯地" },
-            { unit: 10, ko: "관계자", pos: "名词", zh: "相关人士" },
-            { unit: 10, ko: "소비자", pos: "名词", zh: "消费者" },
-            { unit: 10, ko: "요구", pos: "名词", zh: "要求" },
-            { unit: 10, ko: "응모하다", pos: "自动词", zh: "应征,应募" },
-            { unit: 10, ko: "수도", pos: "名词", zh: "首都" },
-            { unit: 10, ko: "한가운데", pos: "名词", zh: "正中间" },
-            { unit: 10, ko: "대표", pos: "名词", zh: "代表" },
-            { unit: 10, ko: "기적", pos: "名词", zh: "奇迹" },
-            { unit: 10, ko: "요지", pos: "名词", zh: "要地,重地" },
-            { unit: 10, ko: "중심지", pos: "名词", zh: "中心地" }
-        ];
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ko-KR';
+      utterance.rate = 0.85; // 语速微调至 0.85，发音清晰自然
+      utterance.pitch = 1.0;
 
-        // 渲染页面与筛选逻辑
-        const grid = document.getElementById('wordGrid');
-        const unitSelect = document.getElementById('unitSelect');
-        const searchInput = document.getElementById('searchInput');
-        const wordCount = document.getElementById('wordCount');
+      if (!selectedKoreanVoice) {
+        initKoreanVoice();
+      }
+      
+      if (selectedKoreanVoice) {
+        utterance.voice = selectedKoreanVoice;
+      }
 
-        function renderWords(items) {
-            grid.innerHTML = '';
-            wordCount.textContent = `显示 ${items.length} 个单词`;
-
-            items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span>第 ${item.unit} 单元</span>
-                        <span class="pos-tag">${item.pos}</span>
-                    </div>
-                    <div class="korean">${item.ko}</div>
-                    <div class="chinese">${item.zh}</div>
-                `;
-                card.onclick = () => speakKorean(item.ko);
-                grid.appendChild(card);
-            });
-        }
-
-        function filterWords() {
-            const selectedUnit = unitSelect.value;
-            const searchText = searchInput.value.trim().toLowerCase();
-
-            const filtered = vocabularyData.filter(item => {
-                const matchUnit = (selectedUnit === 'all') || (item.unit.toString() === selectedUnit);
-                const matchSearch = item.ko.toLowerCase().includes(searchText) || item.zh.toLowerCase().includes(searchText);
-                return matchUnit && matchSearch;
-            });
-
-            renderWords(filtered);
-        }
-
-        function speakKorean(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                // 剔除前缀符号，避免发音异常
-                const cleanText = text.replace('~', '');
-                const utterance = new SpeechSynthesisUtterance(cleanText);
-                utterance.lang = 'ko-KR';
-                utterance.rate = 0.85; // 稍微放慢语速以适合教学
-                window.speechSynthesis.speak(utterance);
-            } else {
-                alert("当前浏览器不支持朗读功能，建议使用 Chrome、Safari 或 Edge。");
-            }
-        }
-
-        // 初始化渲染
-        filterWords();
-    </script>
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
 </body>
 </html>
