@@ -3,531 +3,854 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>延世韩国语 1-6册 词汇库</title>
+    <title>延世韩国语词汇学习 (第1册 - 第2册)</title>
     <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
+            background-color: var(--bg);
+            color: var(--text);
             padding: 20px;
-        }
-        .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
-            background: #fff;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
+
         h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #1a1a1a;
             text-align: center;
+            margin-bottom: 20px;
+            color: #0f172a;
         }
+
         .controls {
             display: flex;
             gap: 12px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        select, input {
-            padding: 10px 14px;
-            font-size: 15px;
-            border: 1px solid #dcdfe6;
-            border-radius: 6px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        select:focus, input:focus {
-            border-color: #409eff;
-        }
+
         select {
             flex: 1;
-            min-width: 140px;
+            min-width: 160px;
+            padding: 10px 14px;
+            font-size: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             background-color: #fff;
+            outline: none;
             cursor: pointer;
         }
-        input {
-            flex: 2;
-            min-width: 200px;
-        }
-        .word-list {
+
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
         }
-        .word-card {
-            border: 1px solid #ebeef5;
-            background-color: #fafafa;
-            padding: 14px 16px;
-            border-radius: 8px;
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
-            align-items: center;
-            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
-        .word-card:hover {
+
+        .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
-            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-        .korean {
-            font-size: 18px;
+
+        .word-korean {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .word-meaning {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+
+        .btn-audio {
+            align-self: flex-start;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background-color: #eff6ff;
+            color: var(--primary);
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 600;
-            color: #2c3e50;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        .chinese {
-            font-size: 14px;
-            color: #606266;
+
+        .btn-audio:hover {
+            background-color: #dbeafe;
         }
+
         .empty-tip {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 40px 0;
-            color: #909399;
+            padding: 40px;
+            color: #94a3b8;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>延世韩国语 1-6册 词汇学习</h1>
-    
+    <h1>延世韩国语词汇学习</h1>
+
     <div class="controls">
         <select id="bookSelect" onchange="onBookChange()">
-            <option value="all">全 6 册</option>
             <option value="book1">第 1 册</option>
             <option value="book2">第 2 册</option>
-            <option value="book3">第 3 册</option>
-            <option value="book4">第 4 册</option>
-            <option value="book5">第 5 册</option>
-            <option value="book6">第 6 册</option>
         </select>
-
-        <select id="unitSelect" onchange="renderWords()">
-            <option value="all">全部单元</option>
+        <select id="unitSelect" onchange="onUnitChange()">
+            <!-- 动态生成单元 -->
         </select>
-
-        <input type="text" id="searchInput" placeholder="搜索韩语或中文..." oninput="renderWords()">
     </div>
 
-    <div class="word-list" id="wordList"></div>
-</div>
+    <div class="grid" id="wordGrid">
+        <!-- 动态生成单词卡片 -->
+    </div>
 
-<script>
-// 融入的批量 JSON 数据结构
-const vocabularyData = {
-   {
-  "book1": {
-    "unit1": [
-      {"word": "학생", "meaning": "学生"},
-      {"word": "선생님", "meaning": "老师"},
-      {"word": "회사원", "meaning": "公司职员"},
-      {"word": "의사", "meaning": "医生"},
-      {"word": "간호사", "meaning": "护士"},
-      {"word": "은행원", "meaning": "银行职员"},
-      {"word": "공무원", "meaning": "公务员"},
-      {"word": "변호사", "meaning": "律师"},
-      {"word": "기자", "meaning": "记者"},
-      {"word": "요리사", "meaning": "厨师"},
-      {"word": "운전기사", "meaning": "司机"},
-      {"word": "가수", "meaning": "歌手"},
-      {"word": "배우", "meaning": "演员"},
-      {"word": "한국", "meaning": "韩国"},
-      {"word": "중국", "meaning": "中国"},
-      {"word": "미국", "meaning": "美国"},
-      {"word": "일본", "meaning": "日本"},
-      {"word": "영국", "meaning": "英国"},
-      {"word": "프랑스", "meaning": "法国"},
-      {"word": "독일", "meaning": "德国"},
-      {"word": "호주", "meaning": "澳大利亚"},
-      {"word": "캐나다", "meaning": "加拿大"},
-      {"word": "러시아", "meaning": "俄罗斯"},
-      {"word": "태국", "meaning": "泰国"},
-      {"word": "베트남", "meaning": "越南"},
-      {"word": "사람", "meaning": "人"},
-      {"word": "이름", "meaning": "名字"},
-      {"word": "무엇", "meaning": "什么"},
-      {"word": "어느", "meaning": "哪个/哪国"},
-      {"word": "나라", "meaning": "国家"},
-      {"word": "직업", "meaning": "职业"},
-      {"word": "이다", "meaning": "是"},
-      {"word": "아니다", "meaning": "不是"},
-      {"word": "안녕하세요", "meaning": "你好"},
-      {"word": "안녕하십니까", "meaning": "您好（正式）"},
-      {"word": "반갑습니다", "meaning": "很高兴认识你"},
-      {"word": "처음 뵙겠습니다", "meaning": "初次见面"},
-      {"word": "저", "meaning": "我（谦称）"},
-      {"word": "나", "meaning": "我（平语）"},
-      {"word": "우리", "meaning": "我们"},
-      {"word": "제", "meaning": "我的（谦称）"},
-      {"word": "내", "meaning": "我的（平语）"}
-    ],
-    "unit2": [
-      {"word": "이것", "meaning": "这个"},
-      {"word": "그것", "meaning": "那个（近听者）"},
-      {"word": "저것", "meaning": "那个（远者）"},
-      {"word": "여기", "meaning": "这里"},
-      {"word": "거기", "meaning": "那里（近听者）"},
-      {"word": "저기", "meaning": "那里（远者）"},
-      {"word": "책", "meaning": "书"},
-      {"word": "공책", "meaning": "笔记本"},
-      {"word": "수첩", "meaning": "手册/记事本"},
-      {"word": "연필", "meaning": "铅笔"},
-      {"word": "볼펜", "meaning": "圆珠笔"},
-      {"word": "지우개", "meaning": "橡皮擦"},
-      {"word": "필통", "meaning": "文具盒/笔袋"},
-      {"word": "가방", "meaning": "包"},
-      {"word": "시계", "meaning": "钟表/手表"},
-      {"word": "모자", "meaning": "帽子"},
-      {"word": "안경", "meaning": "眼镜"},
-      {"word": "선글라스", "meaning": "太阳镜"},
-      {"word": "구두", "meaning": "皮鞋"},
-      {"word": "운동화", "meaning": "运动鞋"},
-      {"word": "우산", "meaning": "雨伞"},
-      {"word": "사전", "meaning": "词典"},
-      {"word": "지갑", "meaning": "钱包"},
-      {"word": "휴지", "meaning": "纸巾"},
-      {"word": "열쇠", "meaning": "钥匙"},
-      {"word": "컴퓨터", "meaning": "电脑"},
-      {"word": "노트북", "meaning": "笔记本电脑"},
-      {"word": "휴대폰", "meaning": "手机"},
-      {"word": "카메라", "meaning": "相机"},
-      {"word": "있다", "meaning": "有/在"},
-      {"word": "없다", "meaning": "没有/不在"},
-      {"word": "누구", "meaning": "谁"},
-      {"word": "얼마", "meaning": "多少钱"}
-    ],
-    "unit3": [
-      {"word": "학교", "meaning": "学校"},
-      {"word": "도서관", "meaning": "图书馆"},
-      {"word": "식당", "meaning": "餐厅"},
-      {"word": "학생식당", "meaning": "学生食堂"},
-      {"word": "매점", "meaning": "小卖部"},
-      {"word": "강의실", "meaning": "教室"},
-      {"word": "교실", "meaning": "课室"},
-      {"word": "화장실", "meaning": "洗手间"},
-      {"word": "기숙사", "meaning": "宿舍"},
-      {"word": "병원", "meaning": "医院"},
-      {"word": "약국", "meaning": "药店"},
-      {"word": "은행", "meaning": "银行"},
-      {"word": "우체국", "meaning": "邮局"},
-      {"word": "영화관", "meaning": "电影院"},
-      {"word": "극장", "meaning": "剧院/影院"},
-      {"word": "공원", "meaning": "公园"},
-      {"word": "백화점", "meaning": "百货商场"},
-      {"word": "마트", "meaning": "超市"},
-      {"word": "편의점", "meaning": "便利店"},
-      {"word": "카페", "meaning": "咖啡馆"},
-      {"word": "집", "meaning": "家"},
-      {"word": "가다", "meaning": "去"},
-      {"word": "오다", "meaning": "来"},
-      {"word": "공부하다", "meaning": "学习"},
-      {"word": "일하다", "meaning": "工作"},
-      {"word": "먹다", "meaning": "吃"},
-      {"word": "마시다", "meaning": "喝"},
-      {"word": "자다", "meaning": "睡觉"},
-      {"word": "보다", "meaning": "看"},
-      {"word": "듣다", "meaning": "听"},
-      {"word": "읽다", "meaning": "读"},
-      {"word": "쓰다", "meaning": "写/用"},
-      {"word": "말하다", "meaning": "说"},
-      {"word": "이야기하다", "meaning": "聊天/交谈"},
-      {"word": "쉬다", "meaning": "休息"},
-      {"word": "만나다", "meaning": "见面"},
-      {"word": "운동하다", "meaning": "运动"},
-      {"word": "쇼핑하다", "meaning": "购物"}
-    ],
-    "unit4": [
-      {"word": "오늘", "meaning": "今天"},
-      {"word": "어제", "meaning": "昨天"},
-      {"word": "내일", "meaning": "明天"},
-      {"word": "모레", "meaning": "后天"},
-      {"word": "그저께", "meaning": "前天"},
-      {"word": "지금", "meaning": "现在"},
-      {"word": "아침", "meaning": "早上/早餐"},
-      {"word": "점심", "meaning": "中午/午餐"},
-      {"word": "저녁", "meaning": "晚上/晚餐"},
-      {"word": "밤", "meaning": "夜晚"},
-      {"word": "새벽", "meaning": "凌晨"},
-      {"word": "오전", "meaning": "上午"},
-      {"word": "오후", "meaning": "下午"},
-      {"word": "월요일", "meaning": "星期一"},
-      {"word": "화요일", "meaning": "星期二"},
-      {"word": "수요일", "meaning": "星期三"},
-      {"word": "목요일", "meaning": "星期四"},
-      {"word": "금요일", "meaning": "星期五"},
-      {"word": "토요일", "meaning": "星期六"},
-      {"word": "일요일", "meaning": "星期日"},
-      {"word": "주말", "meaning": "周末"},
-      {"word": "평일", "meaning": "工作日"},
-      {"word": "이번 주", "meaning": "本周"},
-      {"word": "다음 주", "meaning": "下周"},
-      {"word": "지난 주", "meaning": "上周"},
-      {"word": "몇", "meaning": "几"},
-      {"word": "월", "meaning": "月"},
-      {"word": "일", "meaning": "日/天"},
-      {"word": "시", "meaning": "点（时间）"},
-      {"word": "분", "meaning": "分"},
-      {"word": "초", "meaning": "秒"},
-      {"word": "반", "meaning": "半（30分）"},
-      {"word": "시간", "meaning": "时间/小时"},
-      {"word": "언제", "meaning": "什么时候"}
-    ],
-    "unit5": [
-      {"word": "사과", "meaning": "苹果"},
-      {"word": "바나나", "meaning": "香蕉"},
-      {"word": "포도", "meaning": "葡萄"},
-      {"word": "수박", "meaning": "西瓜"},
-      {"word": "딸기", "meaning": "草莓"},
-      {"word": "오렌지", "meaning": "橙子"},
-      {"word": "우유", "meaning": "牛奶"},
-      {"word": "빵", "meaning": "面包"},
-      {"word": "물", "meaning": "水"},
-      {"word": "커피", "meaning": "咖啡"},
-      {"word": "주스", "meaning": "果汁"},
-      {"word": "콜라", "meaning": "可乐"},
-      {"word": "맥주", "meaning": "啤酒"},
-      {"word": "소주", "meaning": "烧酒"},
-      {"word": "밥", "meaning": "饭/米饭"},
-      {"word": "라면", "meaning": "方便面"},
-      {"word": "김밥", "meaning": "紫菜包饭"},
-      {"word": "비빔밥", "meaning": "拌饭"},
-      {"word": "불고기", "meaning": "烤肉"},
-      {"word": "얼마", "meaning": "多少钱"},
-      {"word": "원", "meaning": "韩元"},
-      {"word": "개", "meaning": "个"},
-      {"word": "명", "meaning": "名/位"},
-      {"word": "분", "meaning": "位（尊称）"},
-      {"word": "병", "meaning": "瓶"},
-      {"word": "잔", "meaning": "杯"},
-      {"word": "권", "meaning": "本/册"},
-      {"word": "장", "meaning": "张"},
-      {"word": "마리", "meaning": "只/头"},
-      {"word": "주다", "meaning": "给"},
-      {"word": "사다", "meaning": "买"},
-      {"word": "파다", "meaning": "卖"},
-      {"word": "계산하다", "meaning": "结账/计算"}
-    ],
-    "unit6": [
-      {"word": "할아버지", "meaning": "爷爷/外公"},
-      {"word": "할머니", "meaning": "奶奶/外婆"},
-      {"word": "아버지", "meaning": "父亲"},
-      {"word": "어머니", "meaning": "母亲"},
-      {"word": "부모님", "meaning": "父母"},
-      {"word": "형", "meaning": "哥哥（男用）"},
-      {"word": "누나", "meaning": "姐姐（男用）"},
-      {"word": "오빠", "meaning": "哥哥（女用）"},
-      {"word": "언니", "meaning": "姐姐（女用）"},
-      {"word": "남동생", "meaning": "弟弟"},
-      {"word": "여동생", "meaning": "妹妹"},
-      {"word": "동생", "meaning": "弟弟/妹妹"},
-      {"word": "남편", "meaning": "丈夫"},
-      {"word": "아내", "meaning": "妻子"},
-      {"word": "아들", "meaning": "儿子"},
-      {"word": "딸", "meaning": "女儿"},
-      {"word": "가족", "meaning": "家族/家人"},
-      {"word": "사진", "meaning": "照片"},
-      {"word": "나이", "meaning": "年龄"},
-      {"word": "살", "meaning": "岁"},
-      {"word": "연세", "meaning": "年龄（尊称）"},
-      {"word": "크다", "meaning": "大"},
-      {"word": "작다", "meaning": "小"},
-      {"word": "많다", "meaning": "多"},
-      {"word": "적다", "meaning": "少"},
-      {"word": "예쁘다", "meaning": "漂亮"},
-      {"word": "멋있다", "meaning": "帅气"},
-      {"word": "키가 크다", "meaning": "个子高"},
-      {"word": "키가 작다", "meaning": "个子矮"},
-      {"word": "바쁘다", "meaning": "忙碌"},
-      {"word": "한가하다", "meaning": "闲暇"},
-      {"word": "계시다", "meaning": "在（尊称）"},
-      {"word": "잡수시다", "meaning": "吃（尊称）"},
-      {"word": "주무시다", "meaning": "睡（尊称）"}
-    ],
-    "unit7": [
-      {"word": "방", "meaning": "房间"},
-      {"word": "거실", "meaning": "客厅"},
-      {"word": "주방", "meaning": "厨房"},
-      {"word": "부엌", "meaning": "厨房"},
-      {"word": "침실", "meaning": "卧室"},
-      {"word": "베란다", "meaning": "阳台"},
-      {"word": "침대", "meaning": "床"},
-      {"word": "책상", "meaning": "书桌"},
-      {"word": "의자", "meaning": "椅子"},
-      {"word": "옷장", "meaning": "衣柜"},
-      {"word": "소파", "meaning": "沙发"},
-      {"word": "식탁", "meaning": "餐桌"},
-      {"word": "텔레비전", "meaning": "电视"},
-      {"word": "냉장고", "meaning": "冰箱"},
-      {"word": "세탁기", "meaning": "洗衣机"},
-      {"word": "에어컨", "meaning": "空调"},
-      {"word": "거울", "meaning": "镜子"},
-      {"word": "창문", "meaning": "窗户"},
-      {"word": "문", "meaning": "门"},
-      {"word": "위", "meaning": "上面"},
-      {"word": "아래", "meaning": "下面"},
-      {"word": "밑", "meaning": "底下"},
-      {"word": "앞", "meaning": "前面"},
-      {"word": "뒤", "meaning": "后面"},
-      {"word": "안", "meaning": "里面"},
-      {"word": "밖", "meaning": "外面"},
-      {"word": "옆", "meaning": "旁边"},
-      {"word": "사이", "meaning": "中间/之间"},
-      {"word": "오른쪽", "meaning": "右边"},
-      {"word": "왼쪽", "meaning": "左边"},
-      {"word": "건너편", "meaning": "对面"},
-      {"word": "맞은편", "meaning": "对面"}
-    ],
-    "unit8": [
-      {"word": "봄", "meaning": "春天"},
-      {"word": "여름", "meaning": "夏天"},
-      {"word": "가을", "meaning": "秋天"},
-      {"word": "겨울", "meaning": "冬天"},
-      {"word": "계절", "meaning": "季节"},
-      {"word": "날씨", "meaning": "天气"},
-      {"word": "맑다", "meaning": "晴朗"},
-      {"word": "흐리다", "meaning": "阴天"},
-      {"word": "덥다", "meaning": "热"},
-      {"word": "춥다", "meaning": "冷"},
-      {"word": "따뜻하다", "meaning": "温暖"},
-      {"word": "시원하다", "meaning": "凉爽"},
-      {"word": "쌀쌀하다", "meaning": "凉飕飕"},
-      {"word": "비", "meaning": "雨"},
-      {"word": "눈", "meaning": "雪"},
-      {"word": "바람", "meaning": "风"},
-      {"word": "구름", "meaning": "云"},
-      {"word": "비가 오다", "meaning": "下雨"},
-      {"word": "눈이 오다", "meaning": "下雪"},
-      {"word": "바람이 불다", "meaning": "刮风"},
-      {"word": "좋다", "meaning": "好"},
-      {"word": "나쁘다", "meaning": "坏/不好"},
-      {"word": "기온", "meaning": "气温"},
-      {"word": "도", "meaning": "度（温度）"}
-    ],
-    "unit9": [
-      {"word": "취미", "meaning": "爱好"},
-      {"word": "운동", "meaning": "运动"},
-      {"word": "음악", "meaning": "音乐"},
-      {"word": "음악 감상", "meaning": "欣赏音乐"},
-      {"word": "영화", "meaning": "电影"},
-      {"word": "영화 감상", "meaning": "看电影"},
-      {"word": "독서", "meaning": "读书"},
-      {"word": "여행", "meaning": "旅行"},
-      {"word": "사진 촬영", "meaning": "摄影"},
-      {"word": "요리", "meaning": "烹饪/做饭"},
-      {"word": "게임", "meaning": "游戏"},
-      {"word": "축구", "meaning": "足球"},
-      {"word": "농구", "meaning": "篮球"},
-      {"word": "야구", "meaning": "棒球"},
-      {"word": "배구", "meaning": "排球"},
-      {"word": "테니스", "meaning": "网球"},
-      {"word": "배드민턴", "meaning": "羽毛球"},
-      {"word": "수영", "meaning": "游泳"},
-      {"word": "등산", "meaning": "登山"},
-      {"word": "자전거 타기", "meaning": "骑自行车"},
-      {"word": "좋아하다", "meaning": "喜欢"},
-      {"word": "싫어하다", "meaning": "讨厌"},
-      {"word": "잘하다", "meaning": "做得好/擅长"},
-      {"word": "못하다", "meaning": "做不好/不擅长"},
-      {"word": "시작하다", "meaning": "开始"},
-      {"word": "배우다", "meaning": "学习/跟人学"},
-      {"word": "가르치다", "meaning": "教"}
-    ],
-    "unit10": [
-      {"word": "전화", "meaning": "电话"},
-      {"word": "휴대폰", "meaning": "手机"},
-      {"word": "스마트폰", "meaning": "智能手机"},
-      {"word": "전화번호", "meaning": "电话号码"},
-      {"word": "통화", "meaning": "通话"},
-      {"word": "문자 메시지", "meaning": "短信"},
-      {"word": "부재중 전화", "meaning": "未接电话"},
-      {"word": "전화를 걸다", "meaning": "打电话"},
-      {"word": "전화를 받다", "meaning": "接电话"},
-      {"word": "전화를 끊다", "meaning": "挂断电话"},
-      {"word": "전화를 바꾸다", "meaning": "转接电话"},
-      {"word": "문자를 보내다", "meaning": "发送短信"},
-      {"word": "문자를 확인하다", "meaning": "查看短信"},
-      {"word": "여보세요", "meaning": "喂（接电话）"},
-      {"word": "잠시만요", "meaning": "请稍等"},
-      {"word": "실례지만", "meaning": "虽然失礼/打扰一下"},
-      {"word": "누구시죠", "meaning": "您是哪位"},
-      {"word": "잘못 걸었습니다", "meaning": "打错了"}
-    ]
-  }
-}
+    <script>
+        const vocabularyData = {
+            "book1": {
+                "unit1": [
+                    {"word": "학생", "meaning": "学生"},
+                    {"word": "선생님", "meaning": "老师"},
+                    {"word": "회사원", "meaning": "公司职员"},
+                    {"word": "의사", "meaning": "医生"},
+                    {"word": "간호사", "meaning": "护士"},
+                    {"word": "은행원", "meaning": "银行职员"},
+                    {"word": "공무원", "meaning": "公务员"},
+                    {"word": "변호사", "meaning": "律师"},
+                    {"word": "기자", "meaning": "记者"},
+                    {"word": "요리사", "meaning": "厨师"},
+                    {"word": "운전기사", "meaning": "司机"},
+                    {"word": "가수", "meaning": "歌手"},
+                    {"word": "배우", "meaning": "演员"},
+                    {"word": "한국", "meaning": "韩国"},
+                    {"word": "중국", "meaning": "中国"},
+                    {"word": "미국", "meaning": "美国"},
+                    {"word": "일본", "meaning": "日本"},
+                    {"word": "영국", "meaning": "英国"},
+                    {"word": "프랑스", "meaning": "法国"},
+                    {"word": "독일", "meaning": "德国"},
+                    {"word": "호주", "meaning": "澳大利亚"},
+                    {"word": "캐나다", "meaning": "加拿大"},
+                    {"word": "러시아", "meaning": "俄罗斯"},
+                    {"word": "태국", "meaning": "泰国"},
+                    {"word": "베트남", "meaning": "越南"},
+                    {"word": "사람", "meaning": "人"},
+                    {"word": "이름", "meaning": "名字"},
+                    {"word": "무엇", "meaning": "什么"},
+                    {"word": "어느", "meaning": "哪个/哪国"},
+                    {"word": "나라", "meaning": "国家"},
+                    {"word": "직업", "meaning": "职业"},
+                    {"word": "이다", "meaning": "是"},
+                    {"word": "아니다", "meaning": "不是"},
+                    {"word": "안녕하세요", "meaning": "你好"},
+                    {"word": "안녕하십니까", "meaning": "您好（正式）"},
+                    {"word": "반갑습니다", "meaning": "很高兴认识你"},
+                    {"word": "처음 뵙겠습니다", "meaning": "初次见面"},
+                    {"word": "저", "meaning": "我（谦称）"},
+                    {"word": "나", "meaning": "我（平语）"},
+                    {"word": "우리", "meaning": "我们"},
+                    {"word": "제", "meaning": "我的（谦称）"},
+                    {"word": "내", "meaning": "我的（平语）"}
+                ],
+                "unit2": [
+                    {"word": "이것", "meaning": "这个"},
+                    {"word": "그것", "meaning": "那个（近听者）"},
+                    {"word": "저것", "meaning": "那个（远者）"},
+                    {"word": "여기", "meaning": "这里"},
+                    {"word": "거기", "meaning": "那里（近听者）"},
+                    {"word": "저기", "meaning": "那里（远者）"},
+                    {"word": "책", "meaning": "书"},
+                    {"word": "공책", "meaning": "笔记本"},
+                    {"word": "수첩", "meaning": "手册/记事本"},
+                    {"word": "연필", "meaning": "铅笔"},
+                    {"word": "볼펜", "meaning": "圆珠笔"},
+                    {"word": "지우개", "meaning": "橡皮擦"},
+                    {"word": "필통", "meaning": "文具盒/笔袋"},
+                    {"word": "가방", "meaning": "包"},
+                    {"word": "시계", "meaning": "钟表/手表"},
+                    {"word": "모자", "meaning": "帽子"},
+                    {"word": "안경", "meaning": "眼镜"},
+                    {"word": "선글라스", "meaning": "太阳镜"},
+                    {"word": "구두", "meaning": "皮鞋"},
+                    {"word": "운동화", "meaning": "运动鞋"},
+                    {"word": "우산", "meaning": "雨伞"},
+                    {"word": "사전", "meaning": "词典"},
+                    {"word": "지갑", "meaning": "钱包"},
+                    {"word": "휴지", "meaning": "纸巾"},
+                    {"word": "열쇠", "meaning": "钥匙"},
+                    {"word": "컴퓨터", "meaning": "电脑"},
+                    {"word": "노트북", "meaning": "笔记本电脑"},
+                    {"word": "휴대폰", "meaning": "手机"},
+                    {"word": "카메라", "meaning": "相机"},
+                    {"word": "있다", "meaning": "有/在"},
+                    {"word": "없다", "meaning": "没有/不在"},
+                    {"word": "누구", "meaning": "谁"},
+                    {"word": "얼마", "meaning": "多少钱"}
+                ],
+                "unit3": [
+                    {"word": "학교", "meaning": "学校"},
+                    {"word": "도서관", "meaning": "图书馆"},
+                    {"word": "식당", "meaning": "餐厅"},
+                    {"word": "학생식당", "meaning": "学生食堂"},
+                    {"word": "매점", "meaning": "小卖部"},
+                    {"word": "강의실", "meaning": "教室"},
+                    {"word": "교실", "meaning": "课室"},
+                    {"word": "화장실", "meaning": "洗手间"},
+                    {"word": "기숙사", "meaning": "宿舍"},
+                    {"word": "병원", "meaning": "医院"},
+                    {"word": "약국", "meaning": "药店"},
+                    {"word": "은행", "meaning": "银行"},
+                    {"word": "우체국", "meaning": "邮局"},
+                    {"word": "영화관", "meaning": "电影院"},
+                    {"word": "극장", "meaning": "剧院/影院"},
+                    {"word": "공원", "meaning": "公园"},
+                    {"word": "백화점", "meaning": "百货商场"},
+                    {"word": "마트", "meaning": "超市"},
+                    {"word": "편의점", "meaning": "便利店"},
+                    {"word": "카페", "meaning": "咖啡馆"},
+                    {"word": "집", "meaning": "家"},
+                    {"word": "가다", "meaning": "去"},
+                    {"word": "오다", "meaning": "来"},
+                    {"word": "공부하다", "meaning": "学习"},
+                    {"word": "일하다", "meaning": "工作"},
+                    {"word": "먹다", "meaning": "吃"},
+                    {"word": "마시다", "meaning": "喝"},
+                    {"word": "자다", "meaning": "睡觉"},
+                    {"word": "보다", "meaning": "看"},
+                    {"word": "듣다", "meaning": "听"},
+                    {"word": "읽다", "meaning": "读"},
+                    {"word": "쓰다", "meaning": "写/用"},
+                    {"word": "말하다", "meaning": "说"},
+                    {"word": "이야기하다", "meaning": "聊天/交谈"},
+                    {"word": "쉬다", "meaning": "休息"},
+                    {"word": "만나다", "meaning": "见面"},
+                    {"word": "운동하다", "meaning": "运动"},
+                    {"word": "쇼핑하다", "meaning": "购物"}
+                ],
+                "unit4": [
+                    {"word": "오늘", "meaning": "今天"},
+                    {"word": "어제", "meaning": "昨天"},
+                    {"word": "내일", "meaning": "明天"},
+                    {"word": "모레", "meaning": "后天"},
+                    {"word": "그저께", "meaning": "前天"},
+                    {"word": "지금", "meaning": "现在"},
+                    {"word": "아침", "meaning": "早上/早餐"},
+                    {"word": "점심", "meaning": "中午/午餐"},
+                    {"word": "저녁", "meaning": "晚上/晚餐"},
+                    {"word": "밤", "meaning": "夜晚"},
+                    {"word": "새벽", "meaning": "凌晨"},
+                    {"word": "오전", "meaning": "上午"},
+                    {"word": "오후", "meaning": "下午"},
+                    {"word": "월요일", "meaning": "星期一"},
+                    {"word": "화요일", "meaning": "星期二"},
+                    {"word": "수요일", "meaning": "星期三"},
+                    {"word": "목요일", "meaning": "星期四"},
+                    {"word": "금요일", "meaning": "星期五"},
+                    {"word": "토요일", "meaning": "星期六"},
+                    {"word": "일요일", "meaning": "星期日"},
+                    {"word": "주말", "meaning": "周末"},
+                    {"word": "평일", "meaning": "工作日"},
+                    {"word": "이번 주", "meaning": "本周"},
+                    {"word": "다음 주", "meaning": "下周"},
+                    {"word": "지난 주", "meaning": "上周"},
+                    {"word": "몇", "meaning": "几"},
+                    {"word": "월", "meaning": "月"},
+                    {"word": "일", "meaning": "日/天"},
+                    {"word": "시", "meaning": "点（时间）"},
+                    {"word": "분", "meaning": "分"},
+                    {"word": "초", "meaning": "秒"},
+                    {"word": "반", "meaning": "半（30分）"},
+                    {"word": "시간", "meaning": "时间/小时"},
+                    {"word": "언제", "meaning": "什么时候"}
+                ],
+                "unit5": [
+                    {"word": "사과", "meaning": "苹果"},
+                    {"word": "바나나", "meaning": "香蕉"},
+                    {"word": "포도", "meaning": "葡萄"},
+                    {"word": "수박", "meaning": "西瓜"},
+                    {"word": "딸기", "meaning": "草莓"},
+                    {"word": "오렌지", "meaning": "橙子"},
+                    {"word": "우유", "meaning": "牛奶"},
+                    {"word": "빵", "meaning": "面包"},
+                    {"word": "물", "meaning": "水"},
+                    {"word": "커피", "meaning": "咖啡"},
+                    {"word": "주스", "meaning": "果汁"},
+                    {"word": "콜라", "meaning": "可乐"},
+                    {"word": "맥주", "meaning": "啤酒"},
+                    {"word": "소주", "meaning": "烧酒"},
+                    {"word": "밥", "meaning": "饭/米饭"},
+                    {"word": "라면", "meaning": "方便面"},
+                    {"word": "김밥", "meaning": "紫菜包饭"},
+                    {"word": "비빔밥", "meaning": "拌饭"},
+                    {"word": "불고기", "meaning": "烤肉"},
+                    {"word": "얼마", "meaning": "多少钱"},
+                    {"word": "원", "meaning": "韩元"},
+                    {"word": "개", "meaning": "个"},
+                    {"word": "명", "meaning": "名/位"},
+                    {"word": "분", "meaning": "位（尊称）"},
+                    {"word": "병", "meaning": "瓶"},
+                    {"word": "잔", "meaning": "杯"},
+                    {"word": "권", "meaning": "本/册"},
+                    {"word": "장", "meaning": "张"},
+                    {"word": "마리", "meaning": "只/头"},
+                    {"word": "주다", "meaning": "给"},
+                    {"word": "사다", "meaning": "买"},
+                    {"word": "파다", "meaning": "卖"},
+                    {"word": "계산하다", "meaning": "结账/计算"}
+                ],
+                "unit6": [
+                    {"word": "할아버지", "meaning": "爷爷/外公"},
+                    {"word": "할머니", "meaning": "奶奶/外婆"},
+                    {"word": "아버지", "meaning": "父亲"},
+                    {"word": "어머니", "meaning": "母亲"},
+                    {"word": "부모님", "meaning": "父母"},
+                    {"word": "형", "meaning": "哥哥（男用）"},
+                    {"word": "누나", "meaning": "姐姐（男用）"},
+                    {"word": "오빠", "meaning": "哥哥（女用）"},
+                    {"word": "언니", "meaning": "姐姐（女用）"},
+                    {"word": "남동생", "meaning": "弟弟"},
+                    {"word": "여동생", "meaning": "妹妹"},
+                    {"word": "동생", "meaning": "弟弟/妹妹"},
+                    {"word": "남편", "meaning": "丈夫"},
+                    {"word": "아내", "meaning": "妻子"},
+                    {"word": "아들", "meaning": "儿子"},
+                    {"word": "딸", "meaning": "女儿"},
+                    {"word": "가족", "meaning": "家族/家人"},
+                    {"word": "사진", "meaning": "照片"},
+                    {"word": "나이", "meaning": "年龄"},
+                    {"word": "살", "meaning": "岁"},
+                    {"word": "연세", "meaning": "年龄（尊称）"},
+                    {"word": "크다", "meaning": "大"},
+                    {"word": "작다", "meaning": "小"},
+                    {"word": "많다", "meaning": "多"},
+                    {"word": "적다", "meaning": "少"},
+                    {"word": "예쁘다", "meaning": "漂亮"},
+                    {"word": "멋있다", "meaning": "帅气"},
+                    {"word": "키가 크다", "meaning": "个子高"},
+                    {"word": "키가 작다", "meaning": "个子矮"},
+                    {"word": "바쁘다", "meaning": "忙碌"},
+                    {"word": "한가하다", "meaning": "闲暇"},
+                    {"word": "계시다", "meaning": "在（尊称）"},
+                    {"word": "잡수시다", "meaning": "吃（尊称）"},
+                    {"word": "주무시다", "meaning": "睡（尊称）"}
+                ],
+                "unit7": [
+                    {"word": "방", "meaning": "房间"},
+                    {"word": "거실", "meaning": "客厅"},
+                    {"word": "주방", "meaning": "厨房"},
+                    {"word": "부엌", "meaning": "厨房"},
+                    {"word": "침실", "meaning": "卧室"},
+                    {"word": "베란다", "meaning": "阳台"},
+                    {"word": "침대", "meaning": "床"},
+                    {"word": "책상", "meaning": "书桌"},
+                    {"word": "의자", "meaning": "椅子"},
+                    {"word": "옷장", "meaning": "衣柜"},
+                    {"word": "소파", "meaning": "沙发"},
+                    {"word": "식탁", "meaning": "餐桌"},
+                    {"word": "텔레비전", "meaning": "电视"},
+                    {"word": "냉장고", "meaning": "冰箱"},
+                    {"word": "세탁기", "meaning": "洗衣机"},
+                    {"word": "에어컨", "meaning": "空调"},
+                    {"word": "거울", "meaning": "镜子"},
+                    {"word": "창문", "meaning": "窗户"},
+                    {"word": "문", "meaning": "门"},
+                    {"word": "위", "meaning": "上面"},
+                    {"word": "아래", "meaning": "下面"},
+                    {"word": "밑", "meaning": "底下"},
+                    {"word": "앞", "meaning": "前面"},
+                    {"word": "뒤", "meaning": "后面"},
+                    {"word": "안", "meaning": "里面"},
+                    {"word": "밖", "meaning": "外面"},
+                    {"word": "옆", "meaning": "旁边"},
+                    {"word": "사이", "meaning": "中间/之间"},
+                    {"word": "오른쪽", "meaning": "右边"},
+                    {"word": "왼쪽", "meaning": "左边"},
+                    {"word": "건너편", "meaning": "对面"},
+                    {"word": "맞은편", "meaning": "对面"}
+                ],
+                "unit8": [
+                    {"word": "봄", "meaning": "春天"},
+                    {"word": "여름", "meaning": "夏天"},
+                    {"word": "가을", "meaning": "秋天"},
+                    {"word": "겨울", "meaning": "冬天"},
+                    {"word": "계절", "meaning": "季节"},
+                    {"word": "날씨", "meaning": "天气"},
+                    {"word": "맑다", "meaning": "晴朗"},
+                    {"word": "흐리다", "meaning": "阴天"},
+                    {"word": "덥다", "meaning": "热"},
+                    {"word": "춥다", "meaning": "冷"},
+                    {"word": "따뜻하다", "meaning": "温暖"},
+                    {"word": "시원하다", "meaning": "凉爽"},
+                    {"word": "쌀쌀하다", "meaning": "凉飕飕"},
+                    {"word": "비", "meaning": "雨"},
+                    {"word": "눈", "meaning": "雪"},
+                    {"word": "바람", "meaning": "风"},
+                    {"word": "구름", "meaning": "云"},
+                    {"word": "비가 오다", "meaning": "下雨"},
+                    {"word": "눈이 오다", "meaning": "下雪"},
+                    {"word": "바람이 불다", "meaning": "刮风"},
+                    {"word": "좋다", "meaning": "好"},
+                    {"word": "나쁘다", "meaning": "坏/不好"},
+                    {"word": "기온", "meaning": "气温"},
+                    {"word": "도", "meaning": "度（温度）"}
+                ],
+                "unit9": [
+                    {"word": "취미", "meaning": "爱好"},
+                    {"word": "운동", "meaning": "运动"},
+                    {"word": "음악", "meaning": "音乐"},
+                    {"word": "음악 감상", "meaning": "欣赏音乐"},
+                    {"word": "영화", "meaning": "电影"},
+                    {"word": "영화 감상", "meaning": "看电影"},
+                    {"word": "독서", "meaning": "读书"},
+                    {"word": "여행", "meaning": "旅行"},
+                    {"word": "사진 촬영", "meaning": "摄影"},
+                    {"word": "요리", "meaning": "烹饪/做饭"},
+                    {"word": "게임", "meaning": "游戏"},
+                    {"word": "축구", "meaning": "足球"},
+                    {"word": "농구", "meaning": "篮球"},
+                    {"word": "야구", "meaning": "棒球"},
+                    {"word": "배구", "meaning": "排球"},
+                    {"word": "테니스", "meaning": "网球"},
+                    {"word": "배드민턴", "meaning": "羽毛球"},
+                    {"word": "수영", "meaning": "游泳"},
+                    {"word": "등산", "meaning": "登山"},
+                    {"word": "자전거 타기", "meaning": "骑自行车"},
+                    {"word": "좋아하다", "meaning": "喜欢"},
+                    {"word": "싫어하다", "meaning": "讨厌"},
+                    {"word": "잘하다", "meaning": "做得好/擅长"},
+                    {"word": "못하다", "meaning": "做不好/不擅长"},
+                    {"word": "시작하다", "meaning": "开始"},
+                    {"word": "배우다", "meaning": "学习/跟人学"},
+                    {"word": "가르치다", "meaning": "教"}
+                ],
+                "unit10": [
+                    {"word": "전화", "meaning": "电话"},
+                    {"word": "휴대폰", "meaning": "手机"},
+                    {"word": "스마트폰", "meaning": "智能手机"},
+                    {"word": "전화번호", "meaning": "电话号码"},
+                    {"word": "통화", "meaning": "通话"},
+                    {"word": "문자 메시지", "meaning": "短信"},
+                    {"word": "부재중 전화", "meaning": "未接电话"},
+                    {"word": "전화를 걸다", "meaning": "打电话"},
+                    {"word": "전화를 받다", "meaning": "接电话"},
+                    {"word": "전화를 끊다", "meaning": "挂断电话"},
+                    {"word": "전화를 바꾸다", "meaning": "转接电话"},
+                    {"word": "문자를 보내다", "meaning": "发送短信"},
+                    {"word": "문자를 확인하다", "meaning": "查看短信"},
+                    {"word": "여보세요", "meaning": "喂（接电话）"},
+                    {"word": "잠시만요", "meaning": "请稍等"},
+                    {"word": "실례지만", "meaning": "虽然失礼/打扰一下"},
+                    {"word": "누구시죠", "meaning": "您是哪位"},
+                    {"word": "잘못 걸었습니다", "meaning": "打错了"}
+                ]
+            },
+            "book2": {
+                "unit1": [
+                    {"word": "약속", "meaning": "约定/预约"},
+                    {"word": "시간", "meaning": "时间"},
+                    {"word": "장소", "meaning": "地点"},
+                    {"word": "약속을 하다", "meaning": "做约定"},
+                    {"word": "약속을 지키다", "meaning": "守约"},
+                    {"word": "약속을 어기다", "meaning": "违约"},
+                    {"word": "약속을 바꾸다", "meaning": "改变约定"},
+                    {"word": "약속을 취소하다", "meaning": "取消约定"},
+                    {"word": "약속에 늦다", "meaning": "约定迟到"},
+                    {"word": "늦다", "meaning": "迟到/晚"},
+                    {"word": "이르다", "meaning": "早"},
+                    {"word": "빠르다", "meaning": "快/早"},
+                    {"word": "기다리다", "meaning": "等待"},
+                    {"word": "만나다", "meaning": "见面"},
+                    {"word": "헤어지다", "meaning": "分手/告别"},
+                    {"word": "정문", "meaning": "正门"},
+                    {"word": "후문", "meaning": "后门"},
+                    {"word": "입구", "meaning": "入口"},
+                    {"word": "출구", "meaning": "出口"},
+                    {"word": "매표소", "meaning": "售票处"},
+                    {"word": "시청", "meaning": "市政府"}
+                ],
+                "unit2": [
+                    {"word": "위치", "meaning": "位置"},
+                    {"word": "방향", "meaning": "方向"},
+                    {"word": "길", "meaning": "路"},
+                    {"word": "건물", "meaning": "建筑物"},
+                    {"word": "사거리", "meaning": "十字路口"},
+                    {"word": "삼거리", "meaning": "丁字路口"},
+                    {"word": "횡단보도", "meaning": "人行横道"},
+                    {"word": "육교", "meaning": "天桥"},
+                    {"word": "지하도", "meaning": "地下通道"},
+                    {"word": "신호등", "meaning": "红绿灯"},
+                    {"word": "이정표", "meaning": "路标"},
+                    {"word": "직진하다", "meaning": "直行"},
+                    {"word": "똑바로 가다", "meaning": "径直走"},
+                    {"word": "쭉 가다", "meaning": "一直走"},
+                    {"word": "우회전하다", "meaning": "右转"},
+                    {"word": "좌회전하다", "meaning": "左转"},
+                    {"word": "유턴하다", "meaning": "掉头"},
+                    {"word": "건너다", "meaning": "过（马路）"},
+                    {"word": "지나다", "meaning": "经过"},
+                    {"word": "나가다", "meaning": "出去"},
+                    {"word": "들어오다", "meaning": "进来"},
+                    {"word": "올라가다", "meaning": "上去"},
+                    {"word": "내려가다", "meaning": "下去"},
+                    {"word": "가깝다", "meaning": "近"},
+                    {"word": "멀다", "meaning": "远"}
+                ],
+                "unit3": [
+                    {"word": "음식", "meaning": "食物"},
+                    {"word": "맛", "meaning": "味道"},
+                    {"word": "식당", "meaning": "餐厅"},
+                    {"word": "메뉴", "meaning": "菜单"},
+                    {"word": "주문하다", "meaning": "点餐"},
+                    {"word": "시키다", "meaning": "点（菜）"},
+                    {"word": "맛있다", "meaning": "好吃"},
+                    {"word": "맛없다", "meaning": "不好吃"},
+                    {"word": "맵다", "meaning": "辣"},
+                    {"word": "달다", "meaning": "甜"},
+                    {"word": "짜다", "meaning": "咸"},
+                    {"word": "싱겁다", "meaning": "淡"},
+                    {"word": "시다", "meaning": "酸"},
+                    {"word": "쓰다", "meaning": "苦"},
+                    {"word": "고소하다", "meaning": "香/香醇"},
+                    {"word": "기름지다", "meaning": "油腻"},
+                    {"word": "시원하다", "meaning": "清爽/清凉"},
+                    {"word": "김치찌개", "meaning": "泡菜汤"},
+                    {"word": "된장찌개", "meaning": "大酱汤"},
+                    {"word": "순두부찌개", "meaning": "嫩豆腐汤"},
+                    {"word": "삼계탕", "meaning": "参鸡汤"},
+                    {"word": "갈비탕", "meaning": "排骨汤"},
+                    {"word": "냉면", "meaning": "冷面"},
+                    {"word": "떡볶이", "meaning": "炒年糕"},
+                    {"word": "튀김", "meaning": "炸物"},
+                    {"word": "순대", "meaning": "米肠"},
+                    {"word": "그릇", "meaning": "碗/盘"},
+                    {"word": "인분", "meaning": "人份"}
+                ],
+                "unit4": [
+                    {"word": "물건", "meaning": "物品"},
+                    {"word": "구매", "meaning": "购买"},
+                    {"word": "옷", "meaning": "衣服"},
+                    {"word": "상의", "meaning": "上衣"},
+                    {"word": "하의", "meaning": "下装"},
+                    {"word": "티셔츠", "meaning": "T恤"},
+                    {"word": "셔츠", "meaning": "衬衫"},
+                    {"word": "바지", "meaning": "裤子"},
+                    {"word": "청바지", "meaning": "牛仔裤"},
+                    {"word": "치마", "meaning": "裙子"},
+                    {"word": "원피스", "meaning": "连衣裙"},
+                    {"word": "코트", "meaning": "大衣"},
+                    {"word": "점퍼", "meaning": "夹克/外套"},
+                    {"word": "양말", "meaning": "袜子"},
+                    {"word": "장갑", "meaning": "手套"},
+                    {"word": "목도리", "meaning": "围巾"},
+                    {"word": "넥타이", "meaning": "领带"},
+                    {"word": "입다", "meaning": "穿（衣服）"},
+                    {"word": "신다", "meaning": "穿（鞋袜）"},
+                    {"word": "쓰다", "meaning": "戴（帽子/眼镜）"},
+                    {"word": "끼다", "meaning": "戴（手套/戒指）"},
+                    {"word": "매다", "meaning": "系/戴（领带/围巾）"},
+                    {"word": "차다", "meaning": "戴（手表）"},
+                    {"word": "벗다", "meaning": "脱下"},
+                    {"word": "사이즈", "meaning": "尺寸"},
+                    {"word": "색상", "meaning": "颜色"},
+                    {"word": "빨간색", "meaning": "红色"},
+                    {"word": "파란색", "meaning": "蓝色"},
+                    {"word": "노란색", "meaning": "黄色"},
+                    {"word": "하얀색", "meaning": "白色"},
+                    {"word": "까만색", "meaning": "黑色"},
+                    {"word": "검은색", "meaning": "黑色"},
+                    {"word": "초록색", "meaning": "绿色"},
+                    {"word": "교환하다", "meaning": "调换/交换"},
+                    {"word": "환불하다", "meaning": "退款"},
+                    {"word": "영수증", "meaning": "收据/小票"}
+                ],
+                "unit5": [
+                    {"word": "교통", "meaning": "交通"},
+                    {"word": "이동", "meaning": "移动/出行"},
+                    {"word": "버스", "meaning": "公交车"},
+                    {"word": "시내버스", "meaning": "市内公交"},
+                    {"word": "고속버스", "meaning": "高速客车"},
+                    {"word": "지하철", "meaning": "地铁"},
+                    {"word": "택시", "meaning": "出租车"},
+                    {"word": "기차", "meaning": "火车"},
+                    {"word": "KTX", "meaning": "韩国高铁"},
+                    {"word": "비행기", "meaning": "飞机"},
+                    {"word": "배", "meaning": "轮船"},
+                    {"word": "정류장", "meaning": "公交站"},
+                    {"word": "역", "meaning": "车站/地铁站"},
+                    {"word": "터미널", "meaning": "客运站/航站楼"},
+                    {"word": "공항", "meaning": "机场"},
+                    {"word": "매표소", "meaning": "售票处"},
+                    {"word": "교통카드", "meaning": "交通卡"},
+                    {"word": "충전하다", "meaning": "充值"},
+                    {"word": "타다", "meaning": "乘坐"},
+                    {"word": "내리다", "meaning": "下车"},
+                    {"word": "갈아타다", "meaning": "换乘"},
+                    {"word": "환승하다", "meaning": "换乘"},
+                    {"word": "운전하다", "meaning": "驾驶"},
+                    {"word": "막히다", "meaning": "堵塞/堵车"},
+                    {"word": "복잡하다", "meaning": "拥挤/复杂"},
+                    {"word": "편하다", "meaning": "方便/舒适"},
+                    {"word": "불편하다", "meaning": "不便/不舒服"},
+                    {"word": "걸어가다", "meaning": "步行去"},
+                    {"word": "걸어오다", "meaning": "步行来"},
+                    {"word": "소요 시간", "meaning": "耗费时间"}
+                ],
+                "unit6": [
+                    {"word": "하루 일과", "meaning": "一日日程"},
+                    {"word": "일상", "meaning": "日常"},
+                    {"word": "일어나다", "meaning": "起床"},
+                    {"word": "씻다", "meaning": "洗/洗漱"},
+                    {"word": "세수하다", "meaning": "洗脸"},
+                    {"word": "이빨을 닦다", "meaning": "刷牙"},
+                    {"word": "샤워하다", "meaning": "洗澡/淋浴"},
+                    {"word": "머리를 감다", "meaning": "洗头"},
+                    {"word": "옷을 입다", "meaning": "穿衣服"},
+                    {"word": "화장하다", "meaning": "化妆"},
+                    {"word": "아침을 먹다", "meaning": "吃早餐"},
+                    {"word": "집에서 나가다", "meaning": "出门"},
+                    {"word": "출근하다", "meaning": "上班"},
+                    {"word": "퇴근하다", "meaning": "下班"},
+                    {"word": "등교하다", "meaning": "上学"},
+                    {"word": "하교하다", "meaning": "放学"},
+                    {"word": "수업을 듣다", "meaning": "上课/听课"},
+                    {"word": "공부하다", "meaning": "学习"},
+                    {"word": "숙제하다", "meaning": "做作业"},
+                    {"word": "청소하다", "meaning": "打扫"},
+                    {"word": "빨래하다", "meaning": "洗衣服"},
+                    {"word": "설거지하다", "meaning": "洗碗"},
+                    {"word": "장보다", "meaning": "买菜/购物"},
+                    {"word": "일기를 쓰다", "meaning": "写日记"},
+                    {"word": "잠들다", "meaning": "入睡"},
+                    {"word": "보통", "meaning": "平时/通常"},
+                    {"word": "자주", "meaning": "经常"},
+                    {"word": "가끔", "meaning": "偶尔"},
+                    {"word": "항상", "meaning": "总是"},
+                    {"word": "언제나", "meaning": "随时/总是"}
+                ],
+                "unit7": [
+                    {"word": "여행", "meaning": "旅行"},
+                    {"word": "휴가", "meaning": "休假/假期"},
+                    {"word": "관광", "meaning": "观光"},
+                    {"word": "여행지", "meaning": "旅游目的地"},
+                    {"word": "관광지", "meaning": "名胜古迹/景点"},
+                    {"word": "유적지", "meaning": "历史遗迹"},
+                    {"word": "온천", "meaning": "温泉"},
+                    {"word": "해수욕장", "meaning": "海水浴场"},
+                    {"word": "호텔", "meaning": "酒店"},
+                    {"word": "콘도", "meaning": "度假公寓"},
+                    {"word": "펜션", "meaning": "民宿"},
+                    {"word": "게스트하우스", "meaning": "青年旅舍"},
+                    {"word": "예약하다", "meaning": "预订"},
+                    {"word": "취소하다", "meaning": "取消"},
+                    {"word": "짐을 싸다", "meaning": "收拾行李"},
+                    {"word": "짐을 풀다", "meaning": "整理/打开行李"},
+                    {"word": "출발하다", "meaning": "出发"},
+                    {"word": "도착하다", "meaning": "到达"},
+                    {"word": "구경하다", "meaning": "游览/参观"},
+                    {"word": "체험하다", "meaning": "体验"},
+                    {"word": "사진을 찍다", "meaning": "拍照"},
+                    {"word": "기념품", "meaning": "纪念品"},
+                    {"word": "경치", "meaning": "风景/景色"},
+                    {"word": "풍경", "meaning": "风光"},
+                    {"word": "아름답다", "meaning": "美丽/优美"},
+                    {"word": "유명하다", "meaning": "著名/有名"},
+                    {"word": "인상적이다", "meaning": "印象深刻的"}
+                ],
+                "unit8": [
+                    {"word": "집 구하기", "meaning": "找房子"},
+                    {"word": "주거", "meaning": "居住"},
+                    {"word": "아파트", "meaning": "公寓"},
+                    {"word": "주택", "meaning": "单体住宅"},
+                    {"word": "빌라", "meaning": "别墅/小洋楼"},
+                    {"word": "원룸", "meaning": "一居室/单间"},
+                    {"word": "오피스텔", "meaning": "商住两用楼"},
+                    {"word": "하숙집", "meaning": "寄宿家庭"},
+                    {"word": "전세", "meaning": "全税（押金制全租房）"},
+                    {"word": "월세", "meaning": "月租"},
+                    {"word": "보증금", "meaning": "保证金/押金"},
+                    {"word": "관리비", "meaning": "物业费/管理费"},
+                    {"word": "부동산", "meaning": "房地产中介"},
+                    {"word": "계약하다", "meaning": "签约"},
+                    {"word": "계약서", "meaning": "合同"},
+                    {"word": "이사하다", "meaning": "搬家"},
+                    {"word": "이삿짐", "meaning": "搬家行李"},
+                    {"word": "밝다", "meaning": "明亮"},
+                    {"word": "어둡다", "meaning": "暗/阴暗"},
+                    {"word": "조용하다", "meaning": "安静"},
+                    {"word": "시끄럽다", "meaning": "吵闹"},
+                    {"word": "깨끗하다", "meaning": "干净"},
+                    {"word": "더럽다", "meaning": "脏"},
+                    {"word": "넓다", "meaning": "宽敞"},
+                    {"word": "좁다", "meaning": "狭窄"},
+                    {"word": "시설", "meaning": "设施"},
+                    {"word": "환경", "meaning": "环境"}
+                ],
+                "unit9": [
+                    {"word": "건강", "meaning": "健康"},
+                    {"word": "증상", "meaning": "症状"},
+                    {"word": "질병", "meaning": "疾病"},
+                    {"word": "감기", "meaning": "感冒"},
+                    {"word": "몸살", "meaning": "浑身酸痛/疲惫症"},
+                    {"word": "열이 나다", "meaning": "发烧"},
+                    {"word": "기침을 하다", "meaning": "咳嗽"},
+                    {"word": "콧물이 나오다", "meaning": "流鼻涕"},
+                    {"word": "두통", "meaning": "头痛"},
+                    {"word": "복통", "meaning": "腹痛"},
+                    {"word": "치통", "meaning": "牙痛"},
+                    {"word": "소화가 안 되다", "meaning": "消化不良"},
+                    {"word": "체하다", "meaning": "积食/积滞"},
+                    {"word": "다치다", "meaning": "受伤"},
+                    {"word": "부러지다", "meaning": "骨折"},
+                    {"word": "삐다", "meaning": "扭伤"},
+                    {"word": "데이다", "meaning": "烫伤"},
+                    {"word": "상처", "meaning": "伤口"},
+                    {"word": "진찰을 받다", "meaning": "接受看诊"},
+                    {"word": "치료하다", "meaning": "治疗"},
+                    {"word": "주사를 맞다", "meaning": "打针"},
+                    {"word": "약", "meaning": "药"},
+                    {"word": "알약", "meaning": "药片"},
+                    {"word": "가루약", "meaning": "药粉"},
+                    {"word": "물약", "meaning": "液体药"},
+                    {"word": "연고", "meaning": "软膏"},
+                    {"word": "파스", "meaning": "膏药/止痛贴"},
+                    {"word": "처방전", "meaning": "处方"},
+                    {"word": "약을 먹다", "meaning": "吃药"},
+                    {"word": "쉬다", "meaning": "休息"}
+                ],
+                "unit10": [
+                    {"word": "모임", "meaning": "聚会"},
+                    {"word": "행사", "meaning": "活动"},
+                    {"word": "초대", "meaning": "邀请"},
+                    {"word": "생일 파티", "meaning": "生日派对"},
+                    {"word": "환영회", "meaning": "欢迎会"},
+                    {"word": "송별회", "meaning": "送别会"},
+                    {"word": "동창회", "meaning": "同学会"},
+                    {"word": "회식", "meaning": "公司聚餐"},
+                    {"word": "집들이", "meaning": "温居/乔迁宴"},
+                    {"word": "초대하다", "meaning": "邀请"},
+                    {"word": "초대를 받다", "meaning": "受邀"},
+                    {"word": "참석하다", "meaning": "出席/参加"},
+                    {"word": "참여하다", "meaning": "参与"},
+                    {"word": "불참하다", "meaning": "缺席"},
+                    {"word": "준비하다", "meaning": "准备"},
+                    {"word": "차리다", "meaning": "准备（饭菜）"},
+                    {"word": "선물", "meaning": "礼物"},
+                    {"word": "선물하다", "meaning": "送礼"},
+                    {"word": "축하하다", "meaning": "祝贺"},
+                    {"word": "감사하다", "meaning": "感谢"},
+                    {"word": "즐겁다", "meaning": "愉快/开心"},
+                    {"word": "기쁘다", "meaning": "高兴/喜悦"},
+                    {"word": "아쉽다", "meaning": "遗憾/舍不得"},
+                    {"word": "특별하다", "meaning": "特别"}
+                ]
+            }
+        };
 
-// 切换册数时更新单元下拉菜单
-function onBookChange() {
-    const bookSelect = document.getElementById('bookSelect').value;
-    const unitSelect = document.getElementById('unitSelect');
-    
-    unitSelect.innerHTML = '<option value="all">全部单元</option>';
+        function playAudio(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ko-KR';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("您的浏览器暂不支持语音合成功能。");
+            }
+        }
 
-    if (bookSelect !== 'all' && vocabularyData[bookSelect]) {
-        const units = Object.keys(vocabularyData[bookSelect]);
-        units.forEach(unit => {
-            const opt = document.createElement('option');
-            opt.value = unit;
-            opt.textContent = `第 ${unit.replace('unit', '')} 单元`;
-            unitSelect.appendChild(opt);
-        });
-    }
-    renderWords();
-}
+        function onBookChange() {
+            const bookSelect = document.getElementById('bookSelect');
+            const unitSelect = document.getElementById('unitSelect');
+            const selectedBook = bookSelect.value;
 
-// 渲染词汇列表
-function renderWords() {
-    const selectedBook = document.getElementById('bookSelect').value;
-    const selectedUnit = document.getElementById('unitSelect').value;
-    const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
-    const wordListContainer = document.getElementById('wordList');
+            unitSelect.innerHTML = '';
+            const units = Object.keys(vocabularyData[selectedBook] || {});
+            
+            units.forEach((unitKey, index) => {
+                const opt = document.createElement('option');
+                opt.value = unitKey;
+                opt.textContent = `第 ${index + 1} 单元`;
+                unitSelect.appendChild(opt);
+            });
 
-    let matchedWords = [];
+            onUnitChange();
+        }
 
-    // 获取符合册数和单元过滤条件的数据
-    Object.keys(vocabularyData).forEach(bookKey => {
-        if (selectedBook === 'all' || selectedBook === bookKey) {
-            const bookObj = vocabularyData[bookKey];
-            Object.keys(bookObj).forEach(unitKey => {
-                if (selectedUnit === 'all' || selectedUnit === unitKey) {
-                    matchedWords.push(...bookObj[unitKey]);
-                }
+        function onUnitChange() {
+            const bookSelect = document.getElementById('bookSelect');
+            const unitSelect = document.getElementById('unitSelect');
+            const wordGrid = document.getElementById('wordGrid');
+
+            const selectedBook = bookSelect.value;
+            const selectedUnit = unitSelect.value;
+
+            wordGrid.innerHTML = '';
+
+            const list = vocabularyData[selectedBook]?.[selectedUnit] || [];
+
+            if (list.length === 0) {
+                wordGrid.innerHTML = '<div class="empty-tip">暂无词汇数据</div>';
+                return;
+            }
+
+            list.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                const koreanEl = document.createElement('div');
+                koreanEl.className = 'word-korean';
+                koreanEl.textContent = item.word;
+
+                const meaningEl = document.createElement('div');
+                meaningEl.className = 'word-meaning';
+                meaningEl.textContent = item.meaning;
+
+                const btn = document.createElement('button');
+                btn.className = 'btn-audio';
+                btn.innerHTML = `🔊 朗读`;
+                btn.onclick = () => playAudio(item.word);
+
+                card.appendChild(koreanEl);
+                card.appendChild(meaningEl);
+                card.appendChild(btn);
+
+                wordGrid.appendChild(card);
             });
         }
-    });
 
-    // 关键词搜索过滤
-    if (searchText) {
-        matchedWords = matchedWords.filter(item => 
-            item.word.toLowerCase().includes(searchText) || 
-            item.meaning.toLowerCase().includes(searchText)
-        );
-    }
-
-    // 渲染 HTML DOM
-    if (matchedWords.length === 0) {
-        wordListContainer.innerHTML = '<div class="empty-tip">未检索到匹配的词汇</div>';
-        return;
-    }
-
-    wordListContainer.innerHTML = matchedWords.map(item => `
-        <div class="word-card">
-            <span class="korean">${item.word}</span>
-            <span class="chinese">${item.meaning}</span>
-        </div>
-    `).join('');
-}
-
-// 初始化渲染
-onBookChange();
-</script>
-
+        window.onload = () => {
+            onBookChange();
+        };
+    </script>
 </body>
 </html>
