@@ -1,173 +1,236 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>延世韩国语 - 高音质词汇点读小站</title>
-  <style>
-    :root {
-      --bg-color: #f4f7f6;
-      --card-bg: #ffffff;
-      --primary-color: #2c3e50;
-      --accent-color: #3498db;
-      --text-main: #333333;
-      --text-sub: #7f8c8d;
-      --border-radius: 12px;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    h1 {
-      font-size: 1.6rem;
-      color: var(--primary-color);
-      margin-bottom: 8px;
-    }
-
-    p.tips {
-      font-size: 0.9rem;
-      color: var(--text-sub);
-      margin: 0;
-    }
-
-    .word-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 16px;
-      width: 100%;
-      max-width: 800px;
-    }
-
-    .word-card {
-      background: var(--card-bg);
-      border-radius: var(--border-radius);
-      padding: 16px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .word-card:active {
-      transform: scale(0.96);
-      background-color: #eaf4fb;
-    }
-
-    .kr-text {
-      font-size: 1.3rem;
-      font-weight: bold;
-      color: var(--primary-color);
-      margin-bottom: 6px;
-    }
-
-    .cn-text {
-      font-size: 0.95rem;
-      color: var(--text-sub);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>延世韩国语 1-6册 词汇库</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            text-align: center;
+        }
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        select, input {
+            padding: 10px 14px;
+            font-size: 15px;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        select:focus, input:focus {
+            border-color: #409eff;
+        }
+        select {
+            flex: 1;
+            min-width: 140px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        input {
+            flex: 2;
+            min-width: 200px;
+        }
+        .word-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+        }
+        .word-card {
+            border: 1px solid #ebeef5;
+            background-color: #fafafa;
+            padding: 14px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .word-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+            background-color: #fff;
+        }
+        .korean {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .chinese {
+            font-size: 14px;
+            color: #606266;
+        }
+        .empty-tip {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 0;
+            color: #909399;
+        }
+    </style>
 </head>
 <body>
 
-  <header>
-    <h1>延世韩国语 - 词汇点读小站</h1>
-    <p class="tips">💡 点击下方任意卡片即可发音（建议使用 Edge 或 Chrome 浏览器）</p>
-  </header>
+<div class="container">
+    <h1>延世韩国语 1-6册 词汇学习</h1>
+    
+    <div class="controls">
+        <select id="bookSelect" onchange="onBookChange()">
+            <option value="all">全 6 册</option>
+            <option value="book1">第 1 册</option>
+            <option value="book2">第 2 册</option>
+            <option value="book3">第 3 册</option>
+            <option value="book4">第 4 册</option>
+            <option value="book5">第 5 册</option>
+            <option value="book6">第 6 册</option>
+        </select>
 
-  <!-- 词汇卡片展示区 -->
-  <main class="word-grid">
-    <div class="word-card" onclick="speakKorean('안녕하세요')">
-      <div class="kr-text">안녕하세요</div>
-      <div class="cn-text">你好</div>
+        <select id="unitSelect" onchange="renderWords()">
+            <option value="all">全部单元</option>
+        </select>
+
+        <input type="text" id="searchInput" placeholder="搜索韩语或中文..." oninput="renderWords()">
     </div>
 
-    <div class="word-card" onclick="speakKorean('감사합니다')">
-      <div class="kr-text">감사합니다</div>
-      <div class="cn-text">谢谢</div>
-    </div>
+    <div class="word-list" id="wordList"></div>
+</div>
 
-    <div class="word-card" onclick="speakKorean('선생님')">
-      <div class="kr-text">선생님</div>
-      <div class="cn-text">老师</div>
-    </div>
+<script>
+// 融入的批量 JSON 数据结构
+const vocabularyData = {
+    "book1": {
+        "unit1": [
+            {"word": "학생", "meaning": "学生"},
+            {"word": "선생님", "meaning": "老师"},
+            {"word": "회사원", "meaning": "公司职员"},
+            {"word": "의사", "meaning": "医生"}
+        ],
+        "unit2": [
+            {"word": "책", "meaning": "书"},
+            {"word": "공책", "meaning": "笔记本"},
+            {"word": "연필", "meaning": "铅笔"}
+        ]
+    },
+    "book2": {
+        "unit1": [
+            {"word": "취미", "meaning": "爱好"},
+            {"word": "운동", "meaning": "运动"}
+        ]
+    },
+    "book3": {
+        "unit1": [
+            {"word": "성격", "meaning": "性格"}
+        ]
+    },
+    "book4": {
+        "unit1": [
+            {"word": "취업", "meaning": "就职/就业"}
+        ]
+    },
+    "book5": {
+        "unit1": [
+            {"word": "사회", "meaning": "社会"}
+        ]
+    },
+    "book6": {
+        "unit1": [
+            {"word": "국적", "meaning": "国籍"},
+            {"word": "문화", "meaning": "文化"},
+            {"word": "다문화", "meaning": "多元文化"}
+        ]
+    }
+};
 
-    <div class="word-card" onclick="speakKorean('학생')">
-      <div class="kr-text">학생</div>
-      <div class="cn-text">学生</div>
-    </div>
+// 切换册数时更新单元下拉菜单
+function onBookChange() {
+    const bookSelect = document.getElementById('bookSelect').value;
+    const unitSelect = document.getElementById('unitSelect');
+    
+    unitSelect.innerHTML = '<option value="all">全部单元</option>';
 
-    <div class="word-card" onclick="speakKorean('한국어')">
-      <div class="kr-text">한국어</div>
-      <div class="cn-text">韩国语</div>
-    </div>
+    if (bookSelect !== 'all' && vocabularyData[bookSelect]) {
+        const units = Object.keys(vocabularyData[bookSelect]);
+        units.forEach(unit => {
+            const opt = document.createElement('option');
+            opt.value = unit;
+            opt.textContent = `第 ${unit.replace('unit', '')} 单元`;
+            unitSelect.appendChild(opt);
+        });
+    }
+    renderWords();
+}
 
-    <div class="word-card" onclick="speakKorean('공부하다')">
-      <div class="kr-text">공부하다</div>
-      <div class="cn-text">学习</div>
-    </div>
-  </main>
+// 渲染词汇列表
+function renderWords() {
+    const selectedBook = document.getElementById('bookSelect').value;
+    const selectedUnit = document.getElementById('unitSelect').value;
+    const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+    const wordListContainer = document.getElementById('wordList');
 
-  <script>
-    // 全局语音变量与声音初始化
-    let selectedKoreanVoice = null;
+    let matchedWords = [];
 
-    function initKoreanVoice() {
-      if (!('speechSynthesis' in window)) return;
-      
-      const voices = window.speechSynthesis.getVoices();
-      
-      // 优先匹配高品质神经网络音色 (Neural / Natural / Online)
-      selectedKoreanVoice = voices.find(voice => 
-        (voice.lang === 'ko-KR' || voice.lang === 'ko_KR' || voice.lang.startsWith('ko')) && 
-        (voice.name.includes('Neural') || voice.name.includes('Natural') || voice.name.includes('Online'))
-      ) || voices.find(voice => voice.lang.startsWith('ko'));
+    // 获取符合册数和单元过滤条件的数据
+    Object.keys(vocabularyData).forEach(bookKey => {
+        if (selectedBook === 'all' || selectedBook === bookKey) {
+            const bookObj = vocabularyData[bookKey];
+            Object.keys(bookObj).forEach(unitKey => {
+                if (selectedUnit === 'all' || selectedUnit === unitKey) {
+                    matchedWords.push(...bookObj[unitKey]);
+                }
+            });
+        }
+    });
+
+    // 关键词搜索过滤
+    if (searchText) {
+        matchedWords = matchedWords.filter(item => 
+            item.word.toLowerCase().includes(searchText) || 
+            item.meaning.toLowerCase().includes(searchText)
+        );
     }
 
-    // 处理浏览器异步加载语音列表
-    if ('speechSynthesis' in window) {
-      initKoreanVoice();
-      window.speechSynthesis.onvoiceschanged = initKoreanVoice;
-    }
-
-    // 点读发音核心逻辑
-    function speakKorean(text) {
-      if (!('speechSynthesis' in window)) {
-        alert("您的浏览器暂不支持朗读功能，建议更换 Chrome 或 Edge 浏览器。");
+    // 渲染 HTML DOM
+    if (matchedWords.length === 0) {
+        wordListContainer.innerHTML = '<div class="empty-tip">未检索到匹配的词汇</div>';
         return;
-      }
-
-      // 停止当前正在播放的声音
-      window.speechSynthesis.cancel();
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ko-KR';
-      utterance.rate = 0.85; // 语速微调至 0.85，发音清晰自然
-      utterance.pitch = 1.0;
-
-      if (!selectedKoreanVoice) {
-        initKoreanVoice();
-      }
-      
-      if (selectedKoreanVoice) {
-        utterance.voice = selectedKoreanVoice;
-      }
-
-      window.speechSynthesis.speak(utterance);
     }
-  </script>
+
+    wordListContainer.innerHTML = matchedWords.map(item => `
+        <div class="word-card">
+            <span class="korean">${item.word}</span>
+            <span class="chinese">${item.meaning}</span>
+        </div>
+    `).join('');
+}
+
+// 初始化渲染
+onBookChange();
+</script>
+
 </body>
 </html>
